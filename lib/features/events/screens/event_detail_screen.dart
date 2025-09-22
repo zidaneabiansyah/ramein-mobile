@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/utils/auth_helper.dart';
 import '../../../shared/widgets/ramein_button.dart';
 
 /// Event Detail Screen untuk aplikasi Ramein
@@ -156,7 +156,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
               pinned: true,
               backgroundColor: AppColors.primary,
               leading: IconButton(
-                onPressed: () => context.pop(),
+                onPressed: () => Navigator.of(context).pop(),
                 icon: const Icon(
                   Icons.arrow_back_ios_rounded,
                   color: Colors.white,
@@ -494,7 +494,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
         child: SafeArea(
           child: RameinButton(
             text: _isRegistered ? 'Sudah Terdaftar' : 'Daftar Sekarang',
-            onPressed: _isRegistered ? null : _handleRegister,
+            onPressed: _isRegistered ? null : () => _handleRegister(),
             isLoading: _isRegistering,
             isFullWidth: true,
             size: RameinButtonSize.large,
@@ -557,6 +557,11 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   }
 
   Future<void> _handleRegister() async {
+    // Cek apakah user sudah login
+    if (!AuthHelper.requireLogin(context, feature: 'pendaftaran event')) {
+      return;
+    }
+
     setState(() {
       _isRegistering = true;
     });

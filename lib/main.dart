@@ -3,6 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/app_colors.dart';
+import 'features/splash/splash_screen.dart';
+import 'features/auth/screens/login_screen.dart';
+import 'features/auth/screens/register_screen.dart';
+import 'features/auth/screens/verify_email_screen.dart';
+import 'features/events/screens/home_screen.dart';
+import 'features/events/screens/event_detail_screen.dart';
+import 'features/events/screens/attendance_screen.dart';
+import 'features/events/screens/my_events_screen.dart';
+import 'features/certificates/screens/certificates_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,15 +50,41 @@ class RameinApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
       
-      // Home route - temporary placeholder
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'Ramein App',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ),
+      // Home route - Splash screen
+      home: const SplashScreen(),
+      
+      // Routes
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/my-events': (context) => const MyEventsScreen(),
+        '/certificates': (context) => const CertificatesScreen(),
+      },
+      
+      // Route generator untuk routes dengan parameter
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/verify-email':
+            final args = settings.arguments as Map<String, dynamic>?;
+            final email = args?['email'] ?? '';
+            return MaterialPageRoute(
+              builder: (context) => VerifyEmailScreen(email: email),
+            );
+          case '/event-detail':
+            final args = settings.arguments as Map<String, dynamic>?;
+            final eventId = args?['eventId'] ?? '';
+            return MaterialPageRoute(
+              builder: (context) => EventDetailScreen(eventId: eventId),
+            );
+          case '/attendance':
+            return MaterialPageRoute(
+              builder: (context) => const AttendanceScreen(),
+            );
+          default:
+            return null;
+        }
+      },
       
       // Localization
       locale: const Locale('id', 'ID'),

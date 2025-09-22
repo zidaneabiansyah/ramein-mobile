@@ -16,26 +16,26 @@ class AppTypography {
   static const FontWeight bold = FontWeight.w700;
   static const FontWeight extraBold = FontWeight.w800;
   
-  // Display Styles - Untuk heading utama
+  // Display Styles - Untuk heading utama (ukuran lebih kecil sesuai frontend)
   static TextStyle get displayLarge => GoogleFonts.getFont(
     _displayFontFamily,
-    fontSize: 32,
+    fontSize: 28, // Reduced from 32
     fontWeight: extraBold,
-    height: 1.2,
-    letterSpacing: -0.5,
+    height: 1.1, // Reduced from 1.2
+    letterSpacing: -0.025, // Reduced from -0.5
   );
   
   static TextStyle get displayMedium => GoogleFonts.getFont(
     _displayFontFamily,
-    fontSize: 28,
+    fontSize: 22, // Reduced from 24
     fontWeight: bold,
-    height: 1.3,
-    letterSpacing: -0.25,
+    height: 1.2, // Reduced from 1.3
+    letterSpacing: -0.025, // Reduced from -0.25
   );
   
   static TextStyle get displaySmall => GoogleFonts.getFont(
     _displayFontFamily,
-    fontSize: 24,
+    fontSize: 20, // Reduced from 24
     fontWeight: semiBold,
     height: 1.3,
     letterSpacing: 0,
@@ -60,7 +60,7 @@ class AppTypography {
   
   static TextStyle get headlineSmall => GoogleFonts.getFont(
     _primaryFontFamily,
-    fontSize: 18,
+    fontSize: 16, // Reduced from 18
     fontWeight: medium,
     height: 1.4,
     letterSpacing: 0,
@@ -69,7 +69,7 @@ class AppTypography {
   // Title Styles - Untuk card titles dan labels
   static TextStyle get titleLarge => GoogleFonts.getFont(
     _primaryFontFamily,
-    fontSize: 16,
+    fontSize: 14, // Reduced from 16
     fontWeight: medium,
     height: 1.5,
     letterSpacing: 0,
@@ -91,10 +91,10 @@ class AppTypography {
     letterSpacing: 0.1,
   );
   
-  // Body Styles - Untuk text content
+  // Body Styles - Untuk text content (ukuran lebih kecil sesuai frontend)
   static TextStyle get bodyLarge => GoogleFonts.getFont(
     _primaryFontFamily,
-    fontSize: 16,
+    fontSize: 14, // Reduced from 16
     fontWeight: regular,
     height: 1.6,
     letterSpacing: 0,
@@ -102,7 +102,7 @@ class AppTypography {
   
   static TextStyle get bodyMedium => GoogleFonts.getFont(
     _primaryFontFamily,
-    fontSize: 14,
+    fontSize: 12, // Reduced from 14
     fontWeight: regular,
     height: 1.6,
     letterSpacing: 0,

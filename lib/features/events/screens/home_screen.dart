@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -184,26 +183,50 @@ class _HomeScreenState extends State<HomeScreen>
                                       ),
                                     ],
                                   ),
+                                  // Guest Mode - Login/Register buttons
                                   Row(
                                     children: [
-                                      IconButton(
+                                      TextButton(
                                         onPressed: () {
-                                          // Navigate to notifications
+                                          Navigator.of(context).pushNamed('/login');
                                         },
-                                        icon: const Icon(
-                                          Icons.notifications_outlined,
-                                          color: Colors.white,
-                                          size: AppSpacing.iconLg,
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: AppSpacing.md,
+                                            vertical: AppSpacing.xs,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Masuk',
+                                          style: AppTypography.labelLarge.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
-                                      IconButton(
+                                      const SizedBox(width: AppSpacing.xs),
+                                      ElevatedButton(
                                         onPressed: () {
-                                          context.push('/profile');
+                                          Navigator.of(context).pushNamed('/register');
                                         },
-                                        icon: const Icon(
-                                          Icons.account_circle_outlined,
-                                          color: Colors.white,
-                                          size: AppSpacing.iconLg,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: AppColors.primary,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: AppSpacing.lg,
+                                            vertical: AppSpacing.xs,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Daftar',
+                                          style: AppTypography.labelLarge.copyWith(
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -315,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           TextButton(
                             onPressed: () {
-                              context.push('/events');
+                              Navigator.of(context).pushNamed('/events');
                             },
                             child: Text(
                               'Lihat Semua',
@@ -359,7 +382,10 @@ class _HomeScreenState extends State<HomeScreen>
                                   child: EventCard(
                                     event: event,
                                     onTap: () {
-                                      context.push('/event/${event['id']}');
+                                      // Guest dapat melihat detail event
+                                      Navigator.of(context).pushNamed('/event-detail', arguments: {
+                                        'eventId': event['id'],
+                                      });
                                     },
                                   ),
                                 ),
@@ -382,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen>
         opacity: _fadeAnimation,
         child: FloatingActionButton.extended(
           onPressed: () {
-            context.push('/my-events');
+            Navigator.of(context).pushNamed('/my-events');
           },
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,

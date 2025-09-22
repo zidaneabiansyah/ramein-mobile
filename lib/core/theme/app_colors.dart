@@ -3,34 +3,34 @@ import 'package:flutter/material.dart';
 /// Ramein App Color Palette
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
 class AppColors {
-  // Primary Brand Colors - Gradient Purple to Blue
-  static const Color primary = Color(0xFF6366F1); // Indigo-500
-  static const Color primaryLight = Color(0xFF818CF8); // Indigo-400
-  static const Color primaryDark = Color(0xFF4F46E5); // Indigo-600
-  static const Color primaryAccent = Color(0xFF8B5CF6); // Violet-500
+  // Primary Brand Colors - Sesuai frontend
+  static const Color primary = Color(0xFF030213); // Dark navy dari frontend
+  static const Color primaryLight = Color(0xFF1A1A2E); // Lighter navy
+  static const Color primaryDark = Color(0xFF0F0F23); // Darker navy
+  static const Color primaryAccent = Color(0xFF00ED64); // Accent green dari frontend
   
-  // Secondary Colors - Modern Teal
-  static const Color secondary = Color(0xFF06B6D4); // Cyan-500
-  static const Color secondaryLight = Color(0xFF22D3EE); // Cyan-400
-  static const Color secondaryDark = Color(0xFF0891B2); // Cyan-600
+  // Secondary Colors - Modern Gray
+  static const Color secondary = Color(0xFF717182); // Muted foreground dari frontend
+  static const Color secondaryLight = Color(0xFF9CA3AF); // Lighter gray
+  static const Color secondaryDark = Color(0xFF4B5563); // Darker gray
   
-  // Neutral Colors - Modern Gray Scale
-  static const Color background = Color(0xFFFAFAFA); // Gray-50
+  // Neutral Colors - Sesuai frontend
+  static const Color background = Color(0xFFFFFFFF); // White dari frontend
   static const Color surface = Color(0xFFFFFFFF); // White
-  static const Color surfaceVariant = Color(0xFFF8FAFC); // Slate-50
+  static const Color surfaceVariant = Color(0xFFF3F3F5); // Input background dari frontend
   
-  static const Color onBackground = Color(0xFF0F172A); // Slate-900
-  static const Color onSurface = Color(0xFF1E293B); // Slate-800
-  static const Color onSurfaceVariant = Color(0xFF475569); // Slate-600
+  static const Color onBackground = Color(0xFF030213); // Primary color dari frontend
+  static const Color onSurface = Color(0xFF030213); // Primary color dari frontend
+  static const Color onSurfaceVariant = Color(0xFF717182); // Muted foreground dari frontend
   
-  // Text Colors
-  static const Color textPrimary = Color(0xFF0F172A); // Slate-900
-  static const Color textSecondary = Color(0xFF475569); // Slate-600
-  static const Color textTertiary = Color(0xFF94A3B8); // Slate-400
+  // Text Colors - Sesuai frontend
+  static const Color textPrimary = Color(0xFF030213); // Primary color dari frontend
+  static const Color textSecondary = Color(0xFF717182); // Muted foreground dari frontend
+  static const Color textTertiary = Color(0xFF9CA3AF); // Lighter gray
   static const Color textDisabled = Color(0xFFCBD5E1); // Slate-300
   
-  // Status Colors
-  static const Color success = Color(0xFF10B981); // Emerald-500
+  // Status Colors - Sesuai frontend
+  static const Color success = Color(0xFF00ED64); // Accent green dari frontend
   static const Color successLight = Color(0xFF34D399); // Emerald-400
   static const Color successDark = Color(0xFF059669); // Emerald-600
   
@@ -38,7 +38,7 @@ class AppColors {
   static const Color warningLight = Color(0xFFFBBF24); // Amber-400
   static const Color warningDark = Color(0xFFD97706); // Amber-600
   
-  static const Color error = Color(0xFFEF4444); // Red-500
+  static const Color error = Color(0xFFD4183D); // Destructive dari frontend
   static const Color errorLight = Color(0xFFF87171); // Red-400
   static const Color errorDark = Color(0xFFDC2626); // Red-600
   
@@ -46,16 +46,16 @@ class AppColors {
   static const Color infoLight = Color(0xFF60A5FA); // Blue-400
   static const Color infoDark = Color(0xFF2563EB); // Blue-600
   
-  // Special Colors
-  static const Color accent = Color(0xFFEC4899); // Pink-500
-  static const Color accentLight = Color(0xFFF472B6); // Pink-400
-  static const Color accentDark = Color(0xFFDB2777); // Pink-600
+  // Special Colors - Sesuai frontend
+  static const Color accent = Color(0xFF00ED64); // Accent green dari frontend
+  static const Color accentLight = Color(0xFF34D399); // Emerald-400
+  static const Color accentDark = Color(0xFF059669); // Emerald-600
   
   // Gradient Colors
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [primary, primaryAccent],
+    colors: [primary, primaryLight],
   );
   
   static const LinearGradient secondaryGradient = LinearGradient(
