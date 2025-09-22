@@ -162,7 +162,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                   color: Colors.white,
                 ),
                 style: IconButton.styleFrom(
-                  backgroundColor: Colors.black.withOpacity(0.3),
+                  backgroundColor: Colors.black.withValues(alpha: 0.3),
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -176,7 +176,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                     color: Colors.white,
                   ),
                   style: IconButton.styleFrom(
-                    backgroundColor: Colors.black.withOpacity(0.3),
+                    backgroundColor: Colors.black.withValues(alpha: 0.3),
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -189,7 +189,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                     color: Colors.white,
                   ),
                   style: IconButton.styleFrom(
-                    backgroundColor: Colors.black.withOpacity(0.3),
+                    backgroundColor: Colors.black.withValues(alpha: 0.3),
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -227,7 +227,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.7),
+                            Colors.black.withValues(alpha: 0.7),
                           ],
                         ),
                       ),
@@ -512,7 +512,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
         Container(
           padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           ),
           child: Icon(

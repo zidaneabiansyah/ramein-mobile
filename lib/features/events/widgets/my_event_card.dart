@@ -38,7 +38,7 @@ class MyEventCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
             border: Border.all(
-              color: _getStatusColor(event['status']).withOpacity(0.3),
+              color: _getStatusColor(event['status']).withValues(alpha: 0.3),
               width: 2,
             ),
           ),
@@ -97,7 +97,7 @@ class MyEventCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
                         boxShadow: [
                           BoxShadow(
-                            color: _getStatusColor(event['status']).withOpacity(0.3),
+                            color: _getStatusColor(event['status']).withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -134,7 +134,7 @@ class MyEventCard extends StatelessWidget {
                         vertical: AppSpacing.sm,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.surface.withOpacity(0.9),
+                        color: AppColors.surface.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
                         border: Border.all(
                           color: AppColors.borderLight,
@@ -236,10 +236,10 @@ class MyEventCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(AppSpacing.md),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                           border: Border.all(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -279,13 +279,13 @@ class MyEventCard extends StatelessWidget {
                         padding: const EdgeInsets.all(AppSpacing.md),
                         decoration: BoxDecoration(
                           color: event['attended'] == true 
-                              ? AppColors.success.withOpacity(0.1)
-                              : AppColors.warning.withOpacity(0.1),
+                              ? AppColors.success.withValues(alpha: 0.1)
+                              : AppColors.warning.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                           border: Border.all(
                             color: event['attended'] == true 
-                                ? AppColors.success.withOpacity(0.3)
-                                : AppColors.warning.withOpacity(0.3),
+                                ? AppColors.success.withValues(alpha: 0.3)
+                                : AppColors.warning.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -418,7 +418,7 @@ class MyEventCard extends StatelessWidget {
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.primary,
                                 side: BorderSide(
-                                  color: AppColors.primary.withOpacity(0.5),
+                                  color: AppColors.primary.withValues(alpha: 0.5),
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(AppSpacing.radiusMd),

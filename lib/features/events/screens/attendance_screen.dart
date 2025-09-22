@@ -78,7 +78,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
 
   Future<void> _checkEventStatus() async {
     setState(() {
-      _isLoading = true;
+      _isSubmitting = true;
     });
 
     // Simulate API call to check event status
@@ -88,7 +88,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     // Check if current time is within event time range
 
     setState(() {
-      _isLoading = false;
+      _isSubmitting = false;
     });
   }
 
@@ -166,7 +166,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                     boxShadow: [
                                       BoxShadow(
                                         color: _isEventActive 
-                                            ? AppColors.primary.withOpacity(0.3)
+                                            ? AppColors.primary.withValues(alpha: 0.3)
                                             : AppColors.shadowLight,
                                         blurRadius: 20,
                                         offset: const Offset(0, 10),
@@ -260,10 +260,10 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                             Container(
                               padding: const EdgeInsets.all(AppSpacing.lg),
                               decoration: BoxDecoration(
-                                color: AppColors.info.withOpacity(0.1),
+                                color: AppColors.info.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                                 border: Border.all(
-                                  color: AppColors.info.withOpacity(0.3),
+                                  color: AppColors.info.withValues(alpha: 0.3),
                                 ),
                               ),
                               child: Column(
@@ -318,10 +318,10 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                       child: Container(
                         padding: const EdgeInsets.all(AppSpacing.xl),
                         decoration: BoxDecoration(
-                          color: AppColors.warning.withOpacity(0.1),
+                          color: AppColors.warning.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
                           border: Border.all(
-                            color: AppColors.warning.withOpacity(0.3),
+                            color: AppColors.warning.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Column(

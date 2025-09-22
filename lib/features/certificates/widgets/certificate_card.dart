@@ -129,10 +129,10 @@ class CertificateCard extends StatelessWidget {
                       vertical: AppSpacing.xs,
                     ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(certificate['status']).withOpacity(0.1),
+                      color: _getStatusColor(certificate['status']).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
                       border: Border.all(
-                        color: _getStatusColor(certificate['status']).withOpacity(0.3),
+                        color: _getStatusColor(certificate['status']).withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(

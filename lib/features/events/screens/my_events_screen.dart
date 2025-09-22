@@ -194,7 +194,7 @@ class _MyEventsScreenState extends State<MyEventsScreen>
                                 Text(
                                   '${_myEvents.length} kegiatan terdaftar',
                                   style: AppTypography.bodyMedium.copyWith(
-                                    color: Colors.white.withOpacity(0.9),
+                                          color: Colors.white.withValues(alpha: 0.9),
                                   ),
                                 ),
                               ],

@@ -89,7 +89,7 @@ class EventCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -120,7 +120,7 @@ class EventCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.success.withOpacity(0.3),
+                              color: AppColors.success.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -151,7 +151,7 @@ class EventCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.accent.withOpacity(0.3),
+                              color: AppColors.accent.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
