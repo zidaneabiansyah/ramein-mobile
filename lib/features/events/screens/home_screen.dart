@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/providers/event_provider.dart';
+import '../../../core/providers/auth_provider.dart';
 import '../../../shared/widgets/ramein_input.dart';
 import '../widgets/event_card.dart';
 import '../widgets/category_chip.dart';
+import 'event_detail_screen.dart';
 
 /// Home Screen untuk aplikasi Ramein
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
+class _HomeScreenState extends ConsumerState<HomeScreen>
     with TickerProviderStateMixin {
   final _searchController = TextEditingController();
   late AnimationController _animationController;
@@ -23,70 +27,18 @@ class _HomeScreenState extends State<HomeScreen>
   late Animation<Offset> _slideAnimation;
   
   String _selectedCategory = 'Semua';
-  bool _isLoading = false;
+  String _selectedSort = 'date_asc';
 
-  final List<String> _categories = [
-    'Semua',
-    'Teknologi',
-    'Bisnis',
-    'Edukasi',
-    'Kesehatan',
-    'Olahraga',
-    'Seni',
-  ];
-
-  final List<Map<String, dynamic>> _events = [
-    {
-      'id': '1',
-      'title': 'Workshop Flutter Development',
-      'date': DateTime.now().add(const Duration(days: 3)),
-      'time': '09:00 - 16:00',
-      'location': 'Gedung Serbaguna ITB',
-      'category': 'Teknologi',
-      'price': 150000,
-      'image': 'https://via.placeholder.com/300x200',
-      'description': 'Belajar membuat aplikasi mobile dengan Flutter dari dasar hingga mahir.',
-      'participants': 45,
-      'maxParticipants': 100,
-    },
-    {
-      'id': '2',
-      'title': 'Seminar Digital Marketing',
-      'date': DateTime.now().add(const Duration(days: 7)),
-      'time': '13:00 - 17:00',
-      'location': 'Hotel Grand Mercure',
-      'category': 'Bisnis',
-      'price': 200000,
-      'image': 'https://via.placeholder.com/300x200',
-      'description': 'Strategi pemasaran digital terbaru untuk meningkatkan penjualan online.',
-      'participants': 78,
-      'maxParticipants': 150,
-    },
-    {
-      'id': '3',
-      'title': 'Kelas Memasak Sehat',
-      'date': DateTime.now().add(const Duration(days: 5)),
-      'time': '10:00 - 14:00',
-      'location': 'Cooking Studio Bandung',
-      'category': 'Kesehatan',
-      'price': 100000,
-      'image': 'https://via.placeholder.com/300x200',
-      'description': 'Belajar memasak makanan sehat dan bergizi untuk keluarga.',
-      'participants': 12,
-      'maxParticipants': 20,
-    },
-  ];
 
   @override
   void initState() {
     super.initState();
     _setupAnimations();
-    _loadEvents();
   }
 
   void _setupAnimations() {
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 400), // Reduced from 800ms
       vsync: this,
     );
 
@@ -109,18 +61,6 @@ class _HomeScreenState extends State<HomeScreen>
     _animationController.forward();
   }
 
-  Future<void> _loadEvents() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
 
   @override
   void dispose() {
@@ -131,6 +71,14 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final eventState = ref.watch(eventProvider);
+    final authState = ref.watch(authProvider);
+
+    // Get filtered events
+    final filteredEvents = _selectedCategory == 'Semua' 
+        ? eventState.events 
+        : eventState.events.where((event) => event.category == _selectedCategory).toList();
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -138,7 +86,9 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         child: SafeArea(
           child: RefreshIndicator(
-            onRefresh: _loadEvents,
+            onRefresh: () async {
+              await ref.read(eventProvider.notifier).loadEvents(refresh: true);
+            },
             color: AppColors.primary,
             child: CustomScrollView(
               slivers: [
@@ -169,7 +119,9 @@ class _HomeScreenState extends State<HomeScreen>
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Selamat datang!',
+                                        authState.isAuthenticated 
+                                            ? 'Halo, ${authState.user?.fullName ?? 'User'}!' 
+                                            : 'Selamat datang!',
                                         style: AppTypography.bodyLarge.copyWith(
                                           color: Colors.white.withValues(alpha: 0.9),
                                         ),
@@ -183,54 +135,77 @@ class _HomeScreenState extends State<HomeScreen>
                                       ),
                                     ],
                                   ),
-                                  // Guest Mode - Login/Register buttons
-                                  Row(
-                                    children: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pushNamed('/login');
-                                        },
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: AppSpacing.md,
-                                            vertical: AppSpacing.xs,
-                                          ),
+                                  // Conditional header based on auth state
+                                  if (authState.isAuthenticated) ...[
+                                    // User Profile Button
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pushNamed('/profile');
+                                      },
+                                      icon: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                                         ),
-                                        child: Text(
-                                          'Masuk',
-                                          style: AppTypography.labelLarge.copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                        child: const Icon(
+                                          Icons.person_rounded,
+                                          color: Colors.white,
+                                          size: 20,
                                         ),
                                       ),
-                                      const SizedBox(width: AppSpacing.xs),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pushNamed('/register');
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.white,
-                                          foregroundColor: AppColors.primary,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: AppSpacing.lg,
-                                            vertical: AppSpacing.xs,
+                                    ),
+                                  ] else ...[
+                                    // Guest Mode - Login/Register buttons
+                                    Row(
+                                      children: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pushNamed('/login');
+                                          },
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: AppSpacing.md,
+                                              vertical: AppSpacing.xs,
+                                            ),
                                           ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                                          child: Text(
+                                            'Masuk',
+                                            style: AppTypography.labelLarge.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
-                                        child: Text(
-                                          'Daftar',
-                                          style: AppTypography.labelLarge.copyWith(
-                                            color: AppColors.primary,
-                                            fontWeight: FontWeight.w600,
+                                        const SizedBox(width: AppSpacing.xs),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pushNamed('/register');
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.white,
+                                            foregroundColor: AppColors.primary,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: AppSpacing.lg,
+                                              vertical: AppSpacing.xs,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'Daftar',
+                                            style: AppTypography.labelLarge.copyWith(
+                                              color: AppColors.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
+                                      ],
+                                    ),
+                                  ],
                                 ],
                               ),
                             ],
@@ -253,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen>
                           controller: _searchController,
                           hint: 'Cari kegiatan menarik...',
                           onChanged: (value) {
-                            // Implement search logic
+                            ref.read(eventProvider.notifier).searchEvents(value);
                           },
                         ),
                       ),
@@ -290,9 +265,10 @@ class _HomeScreenState extends State<HomeScreen>
                               padding: const EdgeInsets.symmetric(
                                 horizontal: AppSpacing.screenPadding,
                               ),
-                              itemCount: _categories.length,
+                              itemCount: ['Semua', ...eventState.categories].length,
                               itemBuilder: (context, index) {
-                                final category = _categories[index];
+                                final categories = ['Semua', ...eventState.categories];
+                                final category = categories[index];
                                 return Padding(
                                   padding: const EdgeInsets.only(right: AppSpacing.sm),
                                   child: CategoryChip(
@@ -302,6 +278,9 @@ class _HomeScreenState extends State<HomeScreen>
                                       setState(() {
                                         _selectedCategory = category;
                                       });
+                                      ref.read(eventProvider.notifier).filterByCategory(
+                                        category == 'Semua' ? null : category,
+                                      );
                                     },
                                   ),
                                 );
@@ -326,27 +305,142 @@ class _HomeScreenState extends State<HomeScreen>
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.screenPadding,
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Kegiatan Terbaru',
-                            style: AppTypography.headlineSmall.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pushNamed('/events');
-                            },
-                            child: Text(
-                              'Lihat Semua',
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w500,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Kegiatan Terbaru',
+                                style: AppTypography.headlineSmall.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pushNamed('/events');
+                                },
+                                child: Text(
+                                  'Lihat Semua',
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          // Sorting Dropdown
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.sort_rounded,
+                                size: AppSpacing.iconSm,
+                                color: AppColors.textSecondary,
+                              ),
+                              const SizedBox(width: AppSpacing.xs),
+                              Text(
+                                'Urutkan:',
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: AppColors.textSecondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
+                                  vertical: AppSpacing.xs,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surface,
+                                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                                  border: Border.all(
+                                    color: AppColors.borderLight,
+                                  ),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: _selectedSort,
+                                    items: [
+                                      DropdownMenuItem(
+                                        value: 'date_asc',
+                                        child: Text(
+                                          'Tanggal Terdekat',
+                                          style: AppTypography.bodySmall.copyWith(
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'date_desc',
+                                        child: Text(
+                                          'Tanggal Terjauh',
+                                          style: AppTypography.bodySmall.copyWith(
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'price_asc',
+                                        child: Text(
+                                          'Harga Terendah',
+                                          style: AppTypography.bodySmall.copyWith(
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'price_desc',
+                                        child: Text(
+                                          'Harga Tertinggi',
+                                          style: AppTypography.bodySmall.copyWith(
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'participants_asc',
+                                        child: Text(
+                                          'Peserta Sedikit',
+                                          style: AppTypography.bodySmall.copyWith(
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'participants_desc',
+                                        child: Text(
+                                          'Peserta Banyak',
+                                          style: AppTypography.bodySmall.copyWith(
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          _selectedSort = value;
+                                        });
+                                        ref.read(eventProvider.notifier).sortEvents(value);
+                                      }
+                                    },
+                                    icon: Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      color: AppColors.textSecondary,
+                                      size: AppSpacing.iconSm,
+                                    ),
+                                    style: AppTypography.bodySmall.copyWith(
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -355,7 +449,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
 
                 // Events List
-                _isLoading
+                eventState.isLoading
                     ? SliverToBoxAdapter(
                         child: Center(
                           child: Padding(
@@ -366,35 +460,67 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                         ),
                       )
-                    : SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final event = _events[index];
-                            return FadeTransition(
-                              opacity: _fadeAnimation,
-                              child: SlideTransition(
-                                position: _slideAnimation,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.screenPadding,
-                                    vertical: AppSpacing.sm,
-                                  ),
-                                  child: EventCard(
-                                    event: event,
-                                    onTap: () {
-                                      // Guest dapat melihat detail event
-                                      Navigator.of(context).pushNamed('/event-detail', arguments: {
-                                        'eventId': event['id'],
-                                      });
-                                    },
-                                  ),
+                    : filteredEvents.isEmpty
+                        ? SliverToBoxAdapter(
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(AppSpacing.enormous),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.event_busy_rounded,
+                                      size: 64,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    const SizedBox(height: AppSpacing.md),
+                                    Text(
+                                      'Belum ada kegiatan',
+                                      style: AppTypography.headlineSmall.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: AppSpacing.sm),
+                                    Text(
+                                      'Coba ubah filter atau cari kata kunci lain',
+                                      style: AppTypography.bodyMedium.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            );
-                          },
-                          childCount: _events.length,
-                        ),
-                      ),
+                            ),
+                          )
+                        : SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                final event = filteredEvents[index];
+                                return FadeTransition(
+                                  opacity: _fadeAnimation,
+                                  child: SlideTransition(
+                                    position: _slideAnimation,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: AppSpacing.screenPadding,
+                                        vertical: AppSpacing.sm,
+                                      ),
+                                      child: EventCard(
+                                        event: event,
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) => EventDetailScreen(eventId: event.id),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              childCount: filteredEvents.length,
+                            ),
+                          ),
 
                 const SliverToBoxAdapter(
                   child: SizedBox(height: AppSpacing.enormous),
@@ -404,25 +530,27 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
       ),
-      floatingActionButton: FadeTransition(
-        opacity: _fadeAnimation,
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.of(context).pushNamed('/my-events');
-          },
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          icon: const Icon(Icons.event_rounded),
-          label: Text(
-            'Kegiatan Saya',
-            style: AppTypography.labelLarge.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          elevation: AppSpacing.fabElevation,
-        ),
-      ),
+      floatingActionButton: authState.isAuthenticated
+          ? FadeTransition(
+              opacity: _fadeAnimation,
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/my-events');
+                },
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                icon: const Icon(Icons.event_rounded),
+                label: Text(
+                  'Kegiatan Saya',
+                  style: AppTypography.labelLarge.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                elevation: AppSpacing.fabElevation,
+              ),
+            )
+          : null,
     );
   }
 }

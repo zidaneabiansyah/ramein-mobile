@@ -1,91 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/event_provider.dart';
+import '../../../core/models/registration_model.dart';
 import '../../../shared/widgets/ramein_button.dart';
-import '../../../shared/widgets/ramein_input.dart';
-import '../widgets/my_event_card.dart';
+import 'event_detail_screen.dart';
+import 'attendance_screen.dart';
 
 /// My Events Screen untuk aplikasi Ramein
-/// Modern, minimalis, dan unik dengan identitas visual yang kuat
-class MyEventsScreen extends StatefulWidget {
+/// Menampilkan event yang sudah didaftar oleh user
+class MyEventsScreen extends ConsumerStatefulWidget {
   const MyEventsScreen({super.key});
 
   @override
-  State<MyEventsScreen> createState() => _MyEventsScreenState();
+  ConsumerState<MyEventsScreen> createState() => _MyEventsScreenState();
 }
 
-class _MyEventsScreenState extends State<MyEventsScreen>
+class _MyEventsScreenState extends ConsumerState<MyEventsScreen>
     with TickerProviderStateMixin {
-  final _searchController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  late TabController _tabController;
   
-  bool _isLoading = true;
-  String _searchQuery = '';
-
-  final List<Map<String, dynamic>> _myEvents = [
-    {
-      'id': '1',
-      'title': 'Workshop Flutter Development',
-      'date': DateTime.now().add(const Duration(days: 3)),
-      'time': '09:00 - 16:00',
-      'location': 'Gedung Serbaguna ITB',
-      'category': 'Teknologi',
-      'image': 'https://via.placeholder.com/300x200',
-      'status': 'registered',
-      'registrationDate': DateTime.now().subtract(const Duration(days: 5)),
-      'tokenNumber': 'TK001ABCDE',
-      'attended': false,
-      'certificateAvailable': false,
-    },
-    {
-      'id': '2',
-      'title': 'Seminar Digital Marketing',
-      'date': DateTime.now().subtract(const Duration(days: 7)),
-      'time': '13:00 - 17:00',
-      'location': 'Hotel Grand Mercure',
-      'category': 'Bisnis',
-      'image': 'https://via.placeholder.com/300x200',
-      'status': 'completed',
-      'registrationDate': DateTime.now().subtract(const Duration(days: 15)),
-      'tokenNumber': 'TK002FGHIJ',
-      'attended': true,
-      'attendanceDate': DateTime.now().subtract(const Duration(days: 7)),
-      'certificateAvailable': true,
-      'certificateNumber': 'CERT-002-2024',
-    },
-    {
-      'id': '3',
-      'title': 'Kelas Memasak Sehat',
-      'date': DateTime.now().subtract(const Duration(days: 30)),
-      'time': '10:00 - 14:00',
-      'location': 'Cooking Studio Bandung',
-      'category': 'Kesehatan',
-      'image': 'https://via.placeholder.com/300x200',
-      'status': 'completed',
-      'registrationDate': DateTime.now().subtract(const Duration(days: 40)),
-      'tokenNumber': 'TK003KLMNO',
-      'attended': false,
-      'certificateAvailable': false,
-    },
-  ];
+  String _selectedFilter = 'Semua';
+  final List<String> _filterOptions = ['Semua', 'Akan Datang', 'Sudah Selesai', 'Sudah Hadir'];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
     _setupAnimations();
-    _loadMyEvents();
   }
 
   void _setupAnimations() {
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 400), // Reduced from 800ms
       vsync: this,
     );
 
@@ -108,51 +60,27 @@ class _MyEventsScreenState extends State<MyEventsScreen>
     _animationController.forward();
   }
 
-  Future<void> _loadMyEvents() async {
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  List<Map<String, dynamic>> get _filteredEvents {
-    List<Map<String, dynamic>> events = [];
-    
-    switch (_tabController.index) {
-      case 0: // Semua
-        events = _myEvents;
-        break;
-      case 1: // Terdaftar
-        events = _myEvents.where((event) => event['status'] == 'registered').toList();
-        break;
-      case 2: // Selesai
-        events = _myEvents.where((event) => event['status'] == 'completed').toList();
-        break;
-    }
-
-    if (_searchQuery.isEmpty) {
-      return events;
-    }
-    
-    return events.where((event) {
-      return event['title'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             event['category'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             event['location'].toLowerCase().contains(_searchQuery.toLowerCase());
-    }).toList();
-  }
-
   @override
   void dispose() {
     _animationController.dispose();
-    _tabController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final eventState = ref.watch(eventProvider);
+
+    // Get user registrations
+    final userRegistrations = eventState.events
+        .map((event) => _getUserRegistration(event.id, authState.user?.id ?? ''))
+        .where((reg) => reg != null)
+        .cast<RegistrationModel>()
+        .toList();
+
+    // Filter registrations based on selected filter
+    final filteredRegistrations = _filterRegistrations(userRegistrations, eventState.events);
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -161,25 +89,34 @@ class _MyEventsScreenState extends State<MyEventsScreen>
         child: SafeArea(
           child: Column(
             children: [
-              // App Bar
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Container(
-                  padding: const EdgeInsets.all(AppSpacing.screenPadding),
-                  decoration: const BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                  ),
+              // Header
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.screenPadding),
+                decoration: const BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                ),
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
                   child: Column(
                     children: [
+                      // App Bar
                       Row(
                         children: [
                           IconButton(
-                            onPressed: () => context.pop(),
+                            onPressed: () => Navigator.of(context).pop(),
                             icon: const Icon(
                               Icons.arrow_back_ios_rounded,
                               color: Colors.white,
                             ),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.white.withValues(alpha: 0.2),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                              ),
+                            ),
                           ),
+                          const SizedBox(width: AppSpacing.md),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,136 +129,66 @@ class _MyEventsScreenState extends State<MyEventsScreen>
                                   ),
                                 ),
                                 Text(
-                                  '${_myEvents.length} kegiatan terdaftar',
+                                  '${userRegistrations.length} kegiatan terdaftar',
                                   style: AppTypography.bodyMedium.copyWith(
-                                          color: Colors.white.withValues(alpha: 0.9),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              context.push('/certificates');
-                            },
-                            icon: const Icon(
-                              Icons.workspace_premium_rounded,
-                              color: Colors.white,
-                            ),
-                          ),
                         ],
                       ),
-                      
-                      const SizedBox(height: AppSpacing.lg),
-                      
-                      // Search Bar
-                      RameinSearchInput(
-                        controller: _searchController,
-                        hint: 'Cari kegiatan saya...',
-                        onChanged: (value) {
-                          setState(() {
-                            _searchQuery = value;
-                          });
-                        },
-                      ),
                     ],
                   ),
                 ),
               ),
 
-              // Tab Bar
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Container(
-                  color: AppColors.surface,
-                  child: TabBar(
-                    controller: _tabController,
-                    onTap: (index) {
-                      setState(() {
-                        // Trigger rebuild when tab changes
-                      });
-                    },
-                    tabs: [
-                      Tab(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.list_rounded, size: AppSpacing.iconSm),
-                            const SizedBox(width: AppSpacing.sm),
-                            Text(
-                              'Semua',
-                              style: AppTypography.labelMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Tab(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.app_registration_rounded, size: AppSpacing.iconSm),
-                            const SizedBox(width: AppSpacing.sm),
-                            Text(
-                              'Terdaftar',
-                              style: AppTypography.labelMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Tab(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.check_circle_rounded, size: AppSpacing.iconSm),
-                            const SizedBox(width: AppSpacing.sm),
-                            Text(
-                              'Selesai',
-                              style: AppTypography.labelMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+              // Filter Chips
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.screenPadding,
+                  vertical: AppSpacing.md,
                 ),
-              ),
-
-              // Statistics
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Container(
-                    padding: const EdgeInsets.all(AppSpacing.screenPadding),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _buildStatCard(
-                            'Total Kegiatan',
-                            '${_myEvents.length}',
-                            Icons.event_rounded,
-                            AppColors.primary,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SizedBox(
+                    height: 40,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _filterOptions.length,
+                      itemBuilder: (context, index) {
+                        final filter = _filterOptions[index];
+                        final isSelected = _selectedFilter == filter;
+                        
+                        return Padding(
+                          padding: const EdgeInsets.only(right: AppSpacing.sm),
+                          child: FilterChip(
+                            label: Text(
+                              filter,
+                              style: AppTypography.labelMedium.copyWith(
+                                color: isSelected ? Colors.white : AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedFilter = filter;
+                              });
+                            },
+                            backgroundColor: AppColors.surface,
+                            selectedColor: AppColors.primary,
+                            checkmarkColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
+                              side: BorderSide(
+                                color: isSelected ? AppColors.primary : AppColors.borderLight,
+                              ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: _buildStatCard(
-                            'Sudah Hadir',
-                            '${_myEvents.where((e) => e['attended'] == true).length}',
-                            Icons.check_circle_rounded,
-                            AppColors.success,
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: _buildStatCard(
-                            'Sertifikat',
-                            '${_myEvents.where((e) => e['certificateAvailable'] == true).length}',
-                            Icons.workspace_premium_rounded,
-                            AppColors.accent,
-                          ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -329,55 +196,39 @@ class _MyEventsScreenState extends State<MyEventsScreen>
 
               // Events List
               Expanded(
-                child: RefreshIndicator(
-                  onRefresh: _loadMyEvents,
-                  color: AppColors.primary,
-                  child: _isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(
+                child: eventState.isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      )
+                    : filteredRegistrations.isEmpty
+                        ? _buildEmptyState()
+                        : RefreshIndicator(
+                            onRefresh: () async {
+                              await ref.read(eventProvider.notifier).refreshEvents();
+                            },
                             color: AppColors.primary,
-                          ),
-                        )
-                      : _filteredEvents.isEmpty
-                          ? _buildEmptyState()
-                          : ListView.builder(
+                            child: ListView.builder(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: AppSpacing.screenPadding,
                               ),
-                              itemCount: _filteredEvents.length,
+                              itemCount: filteredRegistrations.length,
                               itemBuilder: (context, index) {
-                                final event = _filteredEvents[index];
+                                final registration = filteredRegistrations[index];
+                                final event = eventState.events
+                                    .firstWhere((e) => e.id == registration.eventId);
+                                
                                 return FadeTransition(
                                   opacity: _fadeAnimation,
                                   child: SlideTransition(
                                     position: _slideAnimation,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: AppSpacing.md,
-                                      ),
-                                      child: MyEventCard(
-                                        event: event,
-                                        onTap: () {
-                                          _showEventDetail(event);
-                                        },
-                                        onAttendance: event['status'] == 'registered' &&
-                                            _isEventActiveToday(event['date'])
-                                            ? () {
-                                                context.push('/attendance');
-                                              }
-                                            : null,
-                                        onCertificate: event['certificateAvailable'] == true
-                                            ? () {
-                                                context.push('/certificates');
-                                              }
-                                            : null,
-                                      ),
-                                    ),
+                                    child: _buildEventCard(event, registration, index),
                                   ),
                                 );
                               },
                             ),
-                ),
+                          ),
               ),
             ],
           ),
@@ -386,295 +237,286 @@ class _MyEventsScreenState extends State<MyEventsScreen>
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            color: color,
-            size: AppSpacing.iconLg,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            value,
-            style: AppTypography.headlineSmall.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Text(
-            title,
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildEmptyState() {
-    String title;
-    String description;
-    IconData icon;
-
-    switch (_tabController.index) {
-      case 1: // Terdaftar
-        title = 'Belum Ada Kegiatan Terdaftar';
-        description = 'Daftar kegiatan menarik dan mulai belajar hal baru';
-        icon = Icons.app_registration_rounded;
-        break;
-      case 2: // Selesai
-        title = 'Belum Ada Kegiatan Selesai';
-        description = 'Kegiatan yang sudah Anda ikuti akan muncul di sini';
-        icon = Icons.check_circle_rounded;
-        break;
-      default: // Semua
-        title = _searchQuery.isEmpty ? 'Belum Ada Kegiatan' : 'Kegiatan Tidak Ditemukan';
-        description = _searchQuery.isEmpty 
-            ? 'Mulai jelajahi dan daftar kegiatan menarik'
-            : 'Coba kata kunci yang berbeda';
-        icon = _searchQuery.isEmpty ? Icons.event_rounded : Icons.search_off_rounded;
-    }
-
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.screenPadding),
+      child: FadeTransition(
+        opacity: _fadeAnimation,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: AppColors.textTertiary,
-              size: AppSpacing.iconHuge,
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+              ),
+              child: Icon(
+                _selectedFilter == 'Semua' 
+                    ? Icons.event_busy_rounded
+                    : _selectedFilter == 'Akan Datang'
+                        ? Icons.schedule_rounded
+                        : _selectedFilter == 'Sudah Selesai'
+                            ? Icons.history_rounded
+                            : Icons.check_circle_rounded,
+                size: 60,
+                color: AppColors.primary,
+              ),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              title,
+              _getEmptyStateTitle(),
               style: AppTypography.headlineSmall.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.sm),
             Text(
-              description,
+              _getEmptyStateMessage(),
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textTertiary,
+                color: AppColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
-            if (_searchQuery.isEmpty && _tabController.index == 0) ...[
-              const SizedBox(height: AppSpacing.lg),
-              RameinButton(
-                text: 'Jelajahi Kegiatan',
-                onPressed: () {
-                  context.push('/events');
-                },
-                variant: RameinButtonVariant.outline,
-                size: RameinButtonSize.medium,
-                icon: Icons.explore_rounded,
-              ),
-            ],
+            const SizedBox(height: AppSpacing.xl),
+            RameinButton(
+              text: 'Jelajahi Kegiatan',
+              onPressed: () => Navigator.of(context).pop(),
+              variant: RameinButtonVariant.outline,
+              icon: Icons.explore_rounded,
+            ),
           ],
         ),
       ),
     );
   }
 
-  bool _isEventActiveToday(DateTime eventDate) {
+  Widget _buildEventCard(dynamic event, RegistrationModel registration, int index) {
+    final dateFormat = DateFormat('dd MMM yyyy', 'id_ID');
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final eventDay = DateTime(eventDate.year, eventDate.month, eventDate.day);
-    return today.isAtSameMomentAs(eventDay);
-  }
-
-  void _showEventDetail(Map<String, dynamic> event) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _buildEventDetailSheet(event),
-    );
-  }
-
-  Widget _buildEventDetailSheet(Map<String, dynamic> event) {
-    final dateFormat = DateFormat('EEEE, dd MMMM yyyy', 'id_ID');
-    final registrationFormat = DateFormat('dd MMM yyyy HH:mm', 'id_ID');
+    final eventDate = event.eventDate;
+    final isEventPassed = eventDate.isBefore(now);
+    final canAttend = eventDate.isAtSameMomentAs(now) || eventDate.isBefore(now);
     
     return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(AppSpacing.radiusXl),
-          topRight: Radius.circular(AppSpacing.radiusXl),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Card(
+        elevation: AppSpacing.cardElevation,
+        shadowColor: AppColors.shadowLight,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
         ),
-      ),
-      child: Column(
-        children: [
-          // Handle
-          Container(
-            margin: const EdgeInsets.only(top: AppSpacing.md),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.borderMedium,
-              borderRadius: BorderRadius.circular(2),
+        child: InkWell(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => EventDetailScreen(eventId: event.id),
             ),
           ),
-          
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.screenPadding),
-            child: Row(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                  ),
-                  child: Icon(
-                    _getStatusIcon(event['status']),
-                    color: Colors.white,
-                    size: AppSpacing.iconLg,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Detail Kegiatan',
-                        style: AppTypography.headlineSmall.copyWith(
+                // Header with status
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        event.title,
+                        style: AppTypography.titleMedium.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      Text(
-                        _getStatusText(event['status']),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    _buildStatusChip(registration.status, isEventPassed),
+                  ],
+                ),
+                
+                const SizedBox(height: AppSpacing.md),
+                
+                // Event details
+                Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today_rounded,
+                      size: AppSpacing.iconSm,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      dateFormat.format(event.eventDate),
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Icon(
+                      Icons.access_time_rounded,
+                      size: AppSpacing.iconSm,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      event.eventTime,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: AppSpacing.sm),
+                
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: AppSpacing.iconSm,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Expanded(
+                      child: Text(
+                        event.location,
                         style: AppTypography.bodyMedium.copyWith(
-                          color: _getStatusColor(event['status']),
-                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: AppSpacing.md),
+                
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: RameinButton(
+                        text: 'Lihat Detail',
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => EventDetailScreen(eventId: event.id),
+                          ),
+                        ),
+                        variant: RameinButtonVariant.outline,
+                        size: RameinButtonSize.small,
+                        icon: Icons.visibility_rounded,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    if (canAttend && registration.status == RegistrationStatus.approved)
+                      Expanded(
+                        child: RameinButton(
+                          text: 'Daftar Hadir',
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AttendanceScreen(
+                                eventId: event.id,
+                                eventTitle: event.title,
+                                token: registration.token,
+                              ),
+                            ),
+                          ),
+                          variant: RameinButtonVariant.primary,
+                          size: RameinButtonSize.small,
+                          icon: Icons.check_circle_rounded,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => context.pop(),
-                  icon: const Icon(Icons.close_rounded),
+                  ],
                 ),
               ],
             ),
           ),
-          
-          const Divider(height: 1),
-          
-          // Content
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.screenPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Event Info
-                  _buildDetailRow('Nama Kegiatan', event['title']),
-                  _buildDetailRow('Kategori', event['category']),
-                  _buildDetailRow('Tanggal & Waktu', '${dateFormat.format(event['date'])}, ${event['time']}'),
-                  _buildDetailRow('Lokasi', event['location']),
-                  _buildDetailRow('Tanggal Daftar', registrationFormat.format(event['registrationDate'])),
-                  _buildDetailRow('Token Number', event['tokenNumber']),
-                  
-                  if (event['attended'] == true && event['attendanceDate'] != null)
-                    _buildDetailRow('Tanggal Hadir', registrationFormat.format(event['attendanceDate'])),
-                  
-                  if (event['certificateAvailable'] == true && event['certificateNumber'] != null)
-                    _buildDetailRow('Nomor Sertifikat', event['certificateNumber']),
-                  
-                  const SizedBox(height: AppSpacing.lg),
-                  
-                  // Actions
-                  if (event['status'] == 'registered' && _isEventActiveToday(event['date']))
-                    RameinButton(
-                      text: 'Absen Sekarang',
-                      onPressed: () {
-                        context.pop();
-                        context.push('/attendance');
-                      },
-                      variant: RameinButtonVariant.primary,
-                      size: RameinButtonSize.large,
-                      isFullWidth: true,
-                      icon: Icons.qr_code_scanner_rounded,
-                    ),
-                  
-                  if (event['certificateAvailable'] == true) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    RameinButton(
-                      text: 'Lihat Sertifikat',
-                      onPressed: () {
-                        context.pop();
-                        context.push('/certificates');
-                      },
-                      variant: RameinButtonVariant.outline,
-                      size: RameinButtonSize.large,
-                      isFullWidth: true,
-                      icon: Icons.workspace_premium_rounded,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+  Widget _buildStatusChip(RegistrationStatus status, bool isEventPassed) {
+    Color backgroundColor;
+    Color textColor;
+    String text;
+    IconData icon;
+
+    switch (status) {
+      case RegistrationStatus.pending:
+        backgroundColor = AppColors.warning.withValues(alpha: 0.1);
+        textColor = AppColors.warning;
+        text = 'Pending';
+        icon = Icons.schedule_rounded;
+        break;
+      case RegistrationStatus.approved:
+        if (isEventPassed) {
+          backgroundColor = AppColors.success.withValues(alpha: 0.1);
+          textColor = AppColors.success;
+          text = 'Selesai';
+          icon = Icons.check_circle_rounded;
+        } else {
+          backgroundColor = AppColors.primary.withValues(alpha: 0.1);
+          textColor = AppColors.primary;
+          text = 'Terdaftar';
+          icon = Icons.event_available_rounded;
+        }
+        break;
+      case RegistrationStatus.cancelled:
+        backgroundColor = AppColors.error.withValues(alpha: 0.1);
+        textColor = AppColors.error;
+        text = 'Dibatalkan';
+        icon = Icons.cancel_rounded;
+        break;
+      case RegistrationStatus.rejected:
+        backgroundColor = AppColors.error.withValues(alpha: 0.1);
+        textColor = AppColors.error;
+        text = 'Ditolak';
+        icon = Icons.block_rounded;
+        break;
+      case RegistrationStatus.attended:
+        backgroundColor = AppColors.success.withValues(alpha: 0.1);
+        textColor = AppColors.success;
+        text = 'Hadir';
+        icon = Icons.check_circle_rounded;
+        break;
+      case RegistrationStatus.notAttended:
+        backgroundColor = AppColors.warning.withValues(alpha: 0.1);
+        textColor = AppColors.warning;
+        text = 'Tidak Hadir';
+        icon = Icons.cancel_rounded;
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+          Icon(
+            icon,
+            size: 14,
+            color: textColor,
           ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Text(
-              value,
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            text,
+            style: AppTypography.labelSmall.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -682,36 +524,65 @@ class _MyEventsScreenState extends State<MyEventsScreen>
     );
   }
 
-  IconData _getStatusIcon(String status) {
-    switch (status) {
-      case 'registered':
-        return Icons.app_registration_rounded;
-      case 'completed':
-        return Icons.check_circle_rounded;
+  String _getEmptyStateTitle() {
+    switch (_selectedFilter) {
+      case 'Semua':
+        return 'Belum ada kegiatan';
+      case 'Akan Datang':
+        return 'Tidak ada kegiatan mendatang';
+      case 'Sudah Selesai':
+        return 'Belum ada kegiatan selesai';
+      case 'Sudah Hadir':
+        return 'Belum ada kehadiran';
       default:
-        return Icons.event_rounded;
+        return 'Belum ada kegiatan';
     }
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'registered':
-        return AppColors.primary;
-      case 'completed':
-        return AppColors.success;
+  String _getEmptyStateMessage() {
+    switch (_selectedFilter) {
+      case 'Semua':
+        return 'Anda belum mendaftar untuk kegiatan apapun. Jelajahi kegiatan menarik dan daftar sekarang!';
+      case 'Akan Datang':
+        return 'Tidak ada kegiatan mendatang yang sudah Anda daftari.';
+      case 'Sudah Selesai':
+        return 'Belum ada kegiatan yang sudah selesai diikuti.';
+      case 'Sudah Hadir':
+        return 'Anda belum menghadiri kegiatan apapun. Daftar dan hadiri kegiatan untuk mendapatkan sertifikat!';
       default:
-        return AppColors.textSecondary;
+        return 'Jelajahi kegiatan menarik dan daftar sekarang!';
     }
   }
 
-  String _getStatusText(String status) {
-    switch (status) {
-      case 'registered':
-        return 'Terdaftar';
-      case 'completed':
-        return 'Selesai';
-      default:
-        return 'Unknown';
-    }
+  List<RegistrationModel> _filterRegistrations(
+    List<RegistrationModel> registrations,
+    List<dynamic> events,
+  ) {
+    final now = DateTime.now();
+    
+    return registrations.where((registration) {
+      final event = events.firstWhere((e) => e.id == registration.eventId);
+      final eventDate = event.eventDate;
+      
+      switch (_selectedFilter) {
+        case 'Semua':
+          return true;
+        case 'Akan Datang':
+          return eventDate.isAfter(now);
+        case 'Sudah Selesai':
+          return eventDate.isBefore(now);
+        case 'Sudah Hadir':
+          return registration.status == RegistrationStatus.approved && 
+                eventDate.isBefore(now);
+        default:
+          return true;
+      }
+    }).toList();
+  }
+
+  RegistrationModel? _getUserRegistration(String eventId, String userId) {
+    // This is a mock implementation
+    // In real app, this would come from the registration provider
+    return null; // TODO: Implement proper registration retrieval
   }
 }

@@ -262,7 +262,7 @@ class MyEventCard extends StatelessWidget {
                                 ),
                                 Text(
                                   event['tokenNumber'] ?? '',
-                                  style: AppTypography.token.copyWith(
+                                  style: AppTypography.buttonText.copyWith(
                                     color: AppColors.primary,
                                     fontSize: 14,
                                   ),
@@ -351,7 +351,7 @@ class MyEventCard extends StatelessWidget {
                               ),
                               label: Text(
                                 'Absen',
-                                style: AppTypography.labelMedium.copyWith(
+                                style: AppTypography.buttonText.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -381,7 +381,7 @@ class MyEventCard extends StatelessWidget {
                               ),
                               label: Text(
                                 'Sertifikat',
-                                style: AppTypography.labelMedium.copyWith(
+                                style: AppTypography.buttonText.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),

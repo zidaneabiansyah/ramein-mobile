@@ -6,12 +6,12 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
 import '../../features/auth/screens/verify_email_screen.dart';
-import '../../features/auth/screens/admin_login_screen.dart';
 import '../../features/events/screens/home_screen.dart';
 import '../../features/events/screens/event_detail_screen.dart';
 import '../../features/events/screens/attendance_screen.dart';
 import '../../features/events/screens/my_events_screen.dart';
 import '../../features/certificates/screens/certificates_screen.dart';
+import '../../features/profile/screens/profile_screen.dart';
 
 /// App Router Provider
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -49,14 +49,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(
-        path: '/admin/login',
-        name: 'admin-login',
-        pageBuilder: (context, state) => MaterialPage(
-          key: state.pageKey,
-          child: const AdminLoginScreen(),
-        ),
-      ),
 
       // Main App Routes
       GoRoute(
@@ -79,12 +71,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/attendance',
+        path: '/attendance/:eventId/:eventTitle/:token',
         name: 'attendance',
-        pageBuilder: (context, state) => MaterialPage(
-          key: state.pageKey,
-          child: const AttendanceScreen(),
-        ),
+        pageBuilder: (context, state) {
+          final eventId = state.pathParameters['eventId'] ?? '';
+          final eventTitle = state.pathParameters['eventTitle'] ?? '';
+          final token = state.pathParameters['token'] ?? '';
+          return MaterialPage(
+            key: state.pageKey,
+            child: AttendanceScreen(
+              eventId: eventId,
+              eventTitle: eventTitle,
+              token: token,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: '/my-events',
@@ -100,6 +101,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => MaterialPage(
           key: state.pageKey,
           child: const CertificatesScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/profile',
+        name: 'profile',
+        pageBuilder: (context, state) => MaterialPage(
+          key: state.pageKey,
+          child: const ProfileScreen(),
         ),
       ),
 

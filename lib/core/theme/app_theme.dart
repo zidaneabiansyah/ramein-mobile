@@ -93,8 +93,8 @@ class AppTheme {
         ),
       ),
       
-      // Card Theme
-      cardTheme: CardTheme(
+      // Card Theme - Fixed: Changed from CardTheme to CardThemeData
+      cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: AppSpacing.cardElevation,
         shadowColor: AppColors.shadowLight,
@@ -118,7 +118,7 @@ class AppTheme {
             horizontal: AppSpacing.buttonPadding,
             vertical: AppSpacing.md,
           ),
-          textStyle: AppTypography.button,
+          textStyle: AppTypography.buttonText,
           minimumSize: const Size(0, AppSpacing.buttonHeightMd),
         ),
       ),
@@ -135,7 +135,7 @@ class AppTheme {
             horizontal: AppSpacing.buttonPadding,
             vertical: AppSpacing.md,
           ),
-          textStyle: AppTypography.button,
+          textStyle: AppTypography.buttonText,
           minimumSize: const Size(0, AppSpacing.buttonHeightMd),
         ),
       ),
@@ -151,7 +151,7 @@ class AppTheme {
             horizontal: AppSpacing.buttonPadding,
             vertical: AppSpacing.md,
           ),
-          textStyle: AppTypography.button,
+          textStyle: AppTypography.buttonText,
           minimumSize: const Size(0, AppSpacing.buttonHeightMd),
         ),
       ),
@@ -229,8 +229,8 @@ class AppTheme {
         ),
       ),
       
-      // Dialog Theme
-      dialogTheme: DialogTheme(
+      // Dialog Theme - Fixed: Changed from DialogTheme to DialogThemeData
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surface,
         elevation: AppSpacing.dialogElevation,
         shape: RoundedRectangleBorder(
@@ -334,8 +334,8 @@ class AppTheme {
         circularTrackColor: AppColors.borderLight,
       ),
       
-      // Tab Bar Theme
-      tabBarTheme: TabBarTheme(
+      // Tab Bar Theme - Fixed: Changed from TabBarTheme to TabBarThemeData
+      tabBarTheme: TabBarThemeData(
         labelColor: AppColors.primary,
         unselectedLabelColor: AppColors.textTertiary,
         indicator: const UnderlineTabIndicator(

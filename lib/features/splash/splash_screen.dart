@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/providers/app_provider.dart';
+import '../../core/providers/auth_provider.dart';
+import '../auth/screens/login_screen.dart';
 import '../events/screens/home_screen.dart';
 
 /// Splash Screen dengan animasi typing "Ramein" seperti Netflix
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _scaleController;
@@ -75,28 +79,56 @@ class _SplashScreenState extends State<SplashScreen>
         // Tunggu sebentar lalu animasi scale dan navigasi
         Future.delayed(const Duration(milliseconds: 800), () {
           _scaleController.forward().then((_) {
-            // Navigasi ke home screen setelah animasi selesai
+            // Navigasi berdasarkan app state
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted) {
-                Navigator.of(context).pushReplacement(
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        const HomeScreen(),
-                    transitionDuration: const Duration(milliseconds: 800),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
-                    },
-                  ),
-                );
+                _navigateBasedOnAppState();
               }
             });
           });
         });
       }
     });
+  }
+
+  void _navigateBasedOnAppState() {
+    final appState = ref.read(appProvider);
+    final authState = ref.read(authProvider);
+    
+    if (!appState.isInitialized) {
+      // App belum terinisialisasi, tunggu
+      return;
+    }
+    
+    if (authState.isAuthenticated && authState.isEmailVerified) {
+      // User sudah login dan email terverifikasi, ke home
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+          transitionDuration: const Duration(milliseconds: 800),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      );
+    } else {
+      // User belum login atau email belum terverifikasi, ke login
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+          transitionDuration: const Duration(milliseconds: 800),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      );
+    }
   }
 
   @override
@@ -109,6 +141,13 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Listen to app initialization state
+    ref.listen<AppState>(appProvider, (previous, next) {
+      if (next.isInitialized && _currentIndex >= _fullText.length) {
+        _navigateBasedOnAppState();
+      }
+    });
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(

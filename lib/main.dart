@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/app_colors.dart';
 import 'features/splash/splash_screen.dart';
@@ -33,7 +34,11 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
   
-  runApp(const RameinApp());
+  runApp(
+    const ProviderScope(
+      child: RameinApp(),
+    ),
+  );
 }
 
 class RameinApp extends StatelessWidget {
@@ -78,8 +83,16 @@ class RameinApp extends StatelessWidget {
               builder: (context) => EventDetailScreen(eventId: eventId),
             );
           case '/attendance':
+            final args = settings.arguments as Map<String, dynamic>?;
+            final eventId = args?['eventId'] ?? '';
+            final eventTitle = args?['eventTitle'] ?? '';
+            final token = args?['token'] ?? '';
             return MaterialPageRoute(
-              builder: (context) => const AttendanceScreen(),
+              builder: (context) => AttendanceScreen(
+                eventId: eventId,
+                eventTitle: eventTitle,
+                token: token,
+              ),
             );
           default:
             return null;

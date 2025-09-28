@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/utils/auth_helper.dart';
+import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/event_provider.dart';
+import '../../../core/models/registration_model.dart';
 import '../../../shared/widgets/ramein_button.dart';
 
 /// Event Detail Screen untuk aplikasi Ramein
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
-class EventDetailScreen extends StatefulWidget {
+class EventDetailScreen extends ConsumerStatefulWidget {
   final String eventId;
 
   const EventDetailScreen({
@@ -18,27 +21,23 @@ class EventDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<EventDetailScreen> createState() => _EventDetailScreenState();
+  ConsumerState<EventDetailScreen> createState() => _EventDetailScreenState();
 }
 
-class _EventDetailScreenState extends State<EventDetailScreen>
+class _EventDetailScreenState extends ConsumerState<EventDetailScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   
   bool _isLoading = true;
-  bool _isRegistering = false;
-  bool _isRegistered = false;
-
-  // Mock event data
-  Map<String, dynamic>? _event;
 
   @override
   void initState() {
     super.initState();
     _setupAnimations();
     _loadEventDetail();
+    _loadUserRegistrations();
   }
 
   void _setupAnimations() {
@@ -67,49 +66,42 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   }
 
   Future<void> _loadEventDetail() async {
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      await ref.read(eventProvider.notifier).getEventById(widget.eventId);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal memuat detail event: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            ),
+          ),
+        );
+      }
+    }
+  }
 
-    // Mock data
-    setState(() {
-      _event = {
-        'id': widget.eventId,
-        'title': 'Workshop Flutter Development',
-        'date': DateTime.now().add(const Duration(days: 3)),
-        'time': '09:00 - 16:00',
-        'location': 'Gedung Serbaguna ITB, Bandung',
-        'category': 'Teknologi',
-        'price': 150000,
-        'image': 'https://via.placeholder.com/400x300',
-        'description': 'Belajar membuat aplikasi mobile dengan Flutter dari dasar hingga mahir. Workshop ini akan dipandu oleh developer berpengalaman dan akan memberikan hands-on experience dalam pengembangan aplikasi mobile cross-platform.',
-        'participants': 45,
-        'maxParticipants': 100,
-        'organizer': 'Tech Community Bandung',
-        'requirements': [
-          'Laptop dengan spesifikasi minimal RAM 8GB',
-          'Android Studio atau VS Code terinstall',
-          'Basic knowledge tentang programming',
-          'Semangat untuk belajar',
-        ],
-        'agenda': [
-          {'time': '09:00 - 09:30', 'activity': 'Registration & Welcome'},
-          {'time': '09:30 - 10:30', 'activity': 'Introduction to Flutter'},
-          {'time': '10:30 - 10:45', 'activity': 'Coffee Break'},
-          {'time': '10:45 - 12:00', 'activity': 'Building Your First App'},
-          {'time': '12:00 - 13:00', 'activity': 'Lunch Break'},
-          {'time': '13:00 - 15:00', 'activity': 'Advanced Flutter Concepts'},
-          {'time': '15:00 - 15:15', 'activity': 'Coffee Break'},
-          {'time': '15:15 - 16:00', 'activity': 'Q&A and Networking'},
-        ],
-        'facilities': [
-          'Sertifikat digital',
-          'Materi pembelajaran',
-          'Snack & lunch',
-          'Networking session',
-        ],
-      };
-      _isLoading = false;
-    });
+  Future<void> _loadUserRegistrations() async {
+    try {
+      final authState = ref.read(authProvider);
+      if (authState.isAuthenticated && authState.user != null) {
+        final registrationNotifier = ref.read(registrationProvider.notifier);
+        await registrationNotifier.getUserRegistrations(authState.user!.id);
+      }
+    } catch (e) {
+      // Silent fail - registrations are not critical for this screen
+    }
   }
 
   @override
@@ -120,6 +112,14 @@ class _EventDetailScreenState extends State<EventDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final eventState = ref.watch(eventProvider);
+    
+    // Get event from provider with null check
+    final event = eventState.events
+        .where((e) => e.id == widget.eventId)
+        .firstOrNull;
+    
     if (_isLoading) {
       return Scaffold(
         body: Container(
@@ -129,6 +129,41 @@ class _EventDetailScreenState extends State<EventDetailScreen>
           child: const Center(
             child: CircularProgressIndicator(
               color: AppColors.primary,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Handle case when event is null
+    if (event == null) {
+      return Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: AppColors.backgroundGradient,
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 80,
+                  color: AppColors.error,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  'Event tidak ditemukan',
+                  style: AppTypography.headlineMedium.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Kembali'),
+                ),
+              ],
             ),
           ),
         ),
@@ -199,7 +234,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                   fit: StackFit.expand,
                   children: [
                     CachedNetworkImage(
-                      imageUrl: _event!['image'] ?? '',
+                      imageUrl: event.flyerUrl ?? '',
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         color: AppColors.surfaceVariant,
@@ -262,7 +297,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                                 borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
                               ),
                               child: Text(
-                                _event!['category'] ?? '',
+                                event.category,
                                 style: AppTypography.labelMedium.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -275,15 +310,15 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                                 vertical: AppSpacing.sm,
                               ),
                               decoration: BoxDecoration(
-                                color: _event!['price'] == 0 
+                                color: event.price == 0 
                                     ? AppColors.accent 
                                     : AppColors.success,
                                 borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
                               ),
                               child: Text(
-                                _event!['price'] == 0 
+                                event.price == 0 
                                     ? 'GRATIS' 
-                                    : priceFormat.format(_event!['price']),
+                                    : priceFormat.format(event.price),
                                 style: AppTypography.labelMedium.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -297,7 +332,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
 
                         // Title
                         Text(
-                          _event!['title'] ?? '',
+                          event.title,
                           style: AppTypography.displaySmall.copyWith(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w700,
@@ -316,7 +351,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                             ),
                             const SizedBox(width: AppSpacing.sm),
                             Text(
-                              'Oleh ${_event!['organizer']}',
+                              'Oleh ${event.organizer}',
                               style: AppTypography.bodyMedium.copyWith(
                                 color: AppColors.textSecondary,
                               ),
@@ -339,21 +374,21 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                               _buildInfoRow(
                                 Icons.calendar_today_rounded,
                                 'Tanggal',
-                                dateFormat.format(_event!['date']),
+                                dateFormat.format(event.eventDate),
                                 AppColors.primary,
                               ),
                               const Divider(height: AppSpacing.xl),
                               _buildInfoRow(
                                 Icons.access_time_rounded,
                                 'Waktu',
-                                _event!['time'] ?? '',
+                                event.eventTime,
                                 AppColors.secondary,
                               ),
                               const Divider(height: AppSpacing.xl),
                               _buildInfoRow(
                                 Icons.location_on_rounded,
                                 'Lokasi',
-                                _event!['location'] ?? '',
+                                event.location,
                                 AppColors.accent,
                               ),
                             ],
@@ -384,7 +419,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                                     ),
                                   ),
                                   Text(
-                                    '${_event!['participants']}/${_event!['maxParticipants']}',
+                                    '${event.currentParticipants}/${event.maxParticipants}',
                                     style: AppTypography.titleMedium.copyWith(
                                       color: AppColors.primary,
                                       fontWeight: FontWeight.w700,
@@ -394,10 +429,10 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                               ),
                               const SizedBox(height: AppSpacing.md),
                               LinearProgressIndicator(
-                                value: (_event!['participants'] as int) / (_event!['maxParticipants'] as int),
+                                value: event.currentParticipants / event.maxParticipants,
                                 backgroundColor: AppColors.borderLight,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  _getProgressColor((_event!['participants'] as int) / (_event!['maxParticipants'] as int)),
+                                  _getProgressColor(event.currentParticipants / event.maxParticipants),
                                 ),
                                 borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
                                 minHeight: 8,
@@ -418,7 +453,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                         ),
                         const SizedBox(height: AppSpacing.md),
                         Text(
-                          _event!['description'] ?? '',
+                          event.description,
                           style: AppTypography.bodyLarge.copyWith(
                             color: AppColors.textSecondary,
                             height: 1.6,
@@ -436,7 +471,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                           ),
                         ),
                         const SizedBox(height: AppSpacing.md),
-                        ...(_event!['requirements'] as List).map((requirement) => 
+                        ...event.requirements.map((requirement) => 
                           Padding(
                             padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                             child: Row(
@@ -492,15 +527,32 @@ class _EventDetailScreenState extends State<EventDetailScreen>
           ],
         ),
         child: SafeArea(
-          child: RameinButton(
-            text: _isRegistered ? 'Sudah Terdaftar' : 'Daftar Sekarang',
-            onPressed: _isRegistered ? null : () => _handleRegister(),
-            isLoading: _isRegistering,
-            isFullWidth: true,
-            size: RameinButtonSize.large,
-            variant: _isRegistered ? RameinButtonVariant.success : RameinButtonVariant.primary,
-            icon: _isRegistered ? Icons.check_circle_rounded : Icons.app_registration_rounded,
-          ),
+          child: authState.isAuthenticated
+              ? RameinButton(
+                  text: _isUserRegistered(event.id, authState.user?.id ?? '') 
+                      ? 'Sudah Terdaftar' 
+                      : 'Daftar Sekarang',
+                  onPressed: _isUserRegistered(event.id, authState.user?.id ?? '') 
+                      ? null 
+                      : () => _handleRegister(event.id, authState.user?.id ?? ''),
+                  isLoading: eventState.isLoading,
+                  isFullWidth: true,
+                  size: RameinButtonSize.large,
+                  variant: _isUserRegistered(event.id, authState.user?.id ?? '') 
+                      ? RameinButtonVariant.success 
+                      : RameinButtonVariant.primary,
+                  icon: _isUserRegistered(event.id, authState.user?.id ?? '') 
+                      ? Icons.check_circle_rounded 
+                      : Icons.app_registration_rounded,
+                )
+              : RameinButton(
+                  text: 'Login untuk Daftar',
+                  onPressed: () => Navigator.of(context).pushNamed('/login'),
+                  isFullWidth: true,
+                  size: RameinButtonSize.large,
+                  variant: RameinButtonVariant.outline,
+                  icon: Icons.login_rounded,
+                ),
         ),
       ),
     );
@@ -556,43 +608,60 @@ class _EventDetailScreenState extends State<EventDetailScreen>
     }
   }
 
-  Future<void> _handleRegister() async {
-    // Cek apakah user sudah login
-    if (!AuthHelper.requireLogin(context, feature: 'pendaftaran event')) {
-      return;
-    }
-
-    setState(() {
-      _isRegistering = true;
-    });
-
+  bool _isUserRegistered(String eventId, String userId) {
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // TODO: Implement actual registration logic
-      
-      setState(() {
-        _isRegistered = true;
-      });
+      final registrationState = ref.read(registrationProvider);
+      return registrationState.registrations.any(
+        (registration) => registration.eventId == eventId && 
+                         registration.userId == userId &&
+                         (registration.status == RegistrationStatus.approved ||
+                          registration.status == RegistrationStatus.pending),
+      );
+    } catch (e) {
+      return false;
+    }
+  }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Berhasil mendaftar! Token akan dikirim ke email Anda.'),
-            backgroundColor: AppColors.success,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+  Future<void> _handleRegister(String eventId, String userId) async {
+    try {
+      final eventNotifier = ref.read(eventProvider.notifier);
+      final result = await eventNotifier.registerForEvent(
+        eventId: eventId,
+        userId: userId,
+      );
+      
+      if (result.success) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Berhasil mendaftar! Token telah dikirim ke email Anda.'),
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              ),
             ),
-          ),
-        );
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.message),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              ),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Pendaftaran gagal: ${e.toString()}'),
+            content: Text('Gagal mendaftar: ${e.toString()}'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -600,12 +669,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
             ),
           ),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isRegistering = false;
-        });
       }
     }
   }

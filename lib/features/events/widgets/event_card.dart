@@ -4,11 +4,12 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/models/event_model.dart';
 
 /// Event Card Widget untuk menampilkan informasi event
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
 class EventCard extends StatelessWidget {
-  final Map<String, dynamic> event;
+  final EventModel event;
   final VoidCallback? onTap;
 
   const EventCard({
@@ -19,13 +20,33 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd MMM yyyy', 'id_ID');
-    final priceFormat = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
+    // Move formatters to class level to avoid recreation on each build
+    return _EventCardContent(
+      event: event,
+      onTap: onTap,
     );
+  }
+}
 
+class _EventCardContent extends StatelessWidget {
+  final EventModel event;
+  final VoidCallback? onTap;
+  
+  // Static formatters to avoid recreation
+  static final _dateFormat = DateFormat('dd MMM yyyy', 'id_ID');
+  static final _priceFormat = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp ',
+    decimalDigits: 0,
+  );
+
+  const _EventCardContent({
+    required this.event,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       elevation: AppSpacing.cardElevation,
       shadowColor: AppColors.shadowLight,
@@ -47,7 +68,7 @@ class EventCard extends StatelessWidget {
               child: Stack(
                 children: [
                   CachedNetworkImage(
-                    imageUrl: event['image'] ?? '',
+                    imageUrl: event.flyerUrl ?? '',
                     width: double.infinity,
                     height: 180,
                     fit: BoxFit.cover,
@@ -96,7 +117,7 @@ class EventCard extends StatelessWidget {
                         ],
                       ),
                       child: Text(
-                        event['category'] ?? '',
+                        event.category,
                         style: AppTypography.labelSmall.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -106,7 +127,7 @@ class EventCard extends StatelessWidget {
                   ),
                   
                   // Price Badge
-                  if (event['price'] != null && event['price'] > 0)
+                  if (event.price != null && event.price! > 0)
                     Positioned(
                       top: AppSpacing.md,
                       right: AppSpacing.md,
@@ -127,7 +148,7 @@ class EventCard extends StatelessWidget {
                           ],
                         ),
                         child: Text(
-                          priceFormat.format(event['price']),
+                          _priceFormat.format(event.price),
                           style: AppTypography.labelSmall.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -137,7 +158,7 @@ class EventCard extends StatelessWidget {
                     ),
                   
                   // Free Badge
-                  if (event['price'] == null || event['price'] == 0)
+                  if (event.price == null || event.price == 0)
                     Positioned(
                       top: AppSpacing.md,
                       right: AppSpacing.md,
@@ -178,7 +199,7 @@ class EventCard extends StatelessWidget {
                 children: [
                   // Title
                   Text(
-                    event['title'] ?? '',
+                    event.title,
                     style: AppTypography.eventTitle.copyWith(
                       color: AppColors.textPrimary,
                     ),
@@ -190,7 +211,7 @@ class EventCard extends StatelessWidget {
                   
                   // Description
                   Text(
-                    event['description'] ?? '',
+                    event.description,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -209,8 +230,8 @@ class EventCard extends StatelessWidget {
                         size: AppSpacing.iconSm,
                       ),
                       const SizedBox(width: AppSpacing.sm),
-                      Text(
-                        dateFormat.format(event['date']),
+                        Text(
+                          _dateFormat.format(event.eventDate),
                         style: AppTypography.eventDate.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w600,
@@ -225,7 +246,7 @@ class EventCard extends StatelessWidget {
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
-                          event['time'] ?? '',
+                          event.eventTime,
                           style: AppTypography.eventDate.copyWith(
                             color: AppColors.textSecondary,
                           ),
@@ -248,7 +269,7 @@ class EventCard extends StatelessWidget {
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
-                          event['location'] ?? '',
+                          event.location,
                           style: AppTypography.eventLocation.copyWith(
                             color: AppColors.textSecondary,
                           ),
@@ -262,8 +283,7 @@ class EventCard extends StatelessWidget {
                   const SizedBox(height: AppSpacing.md),
                   
                   // Participants Progress
-                  if (event['participants'] != null && event['maxParticipants'] != null)
-                    Column(
+                  Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
@@ -276,7 +296,7 @@ class EventCard extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '${event['participants']}/${event['maxParticipants']}',
+                              '${event.currentParticipants}/${event.maxParticipants}' ,
                               style: AppTypography.labelMedium.copyWith(
                                 color: AppColors.textPrimary,
                                 fontWeight: FontWeight.w600,
@@ -289,10 +309,10 @@ class EventCard extends StatelessWidget {
                         
                         // Progress Bar
                         LinearProgressIndicator(
-                          value: (event['participants'] as int) / (event['maxParticipants'] as int),
+                          value: event.currentParticipants / event.maxParticipants,
                           backgroundColor: AppColors.borderLight,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            _getProgressColor((event['participants'] as int) / (event['maxParticipants'] as int)),
+                            _getProgressColor(event.currentParticipants / event.maxParticipants),
                           ),
                           borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
                         ),

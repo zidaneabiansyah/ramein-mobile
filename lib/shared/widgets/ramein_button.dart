@@ -70,7 +70,7 @@ class RameinButton extends StatelessWidget {
               else
                 Text(
                   text,
-                  style: AppTypography.button.copyWith(
+                  style: AppTypography.buttonText.copyWith(
                     color: buttonStyle.textColor,
                     fontSize: buttonSize.fontSize,
                     fontWeight: FontWeight.w600,

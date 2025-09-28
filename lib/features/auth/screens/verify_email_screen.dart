@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/providers/auth_provider.dart';
 import '../../../shared/widgets/ramein_button.dart';
 import '../../../shared/widgets/ramein_input.dart';
+import '../../../features/events/screens/home_screen.dart';
 
 /// Email Verification Screen untuk aplikasi Ramein
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
-class VerifyEmailScreen extends StatefulWidget {
+class VerifyEmailScreen extends ConsumerStatefulWidget {
   final String email;
   
   const VerifyEmailScreen({
@@ -18,10 +20,10 @@ class VerifyEmailScreen extends StatefulWidget {
   });
 
   @override
-  State<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
+  ConsumerState<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
 }
 
-class _VerifyEmailScreenState extends State<VerifyEmailScreen>
+class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
@@ -32,7 +34,6 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _pulseAnimation;
   
-  bool _isLoading = false;
   bool _isResending = false;
   int _countdown = 300; // 5 minutes in seconds
   bool _canResend = false;
@@ -114,6 +115,30 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
+    // Listen to auth state changes
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            ),
+          ),
+        );
+      } else if (next.isAuthenticated && next.isEmailVerified) {
+        // Navigate to home screen
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (route) => false,
+        );
+      }
+    });
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -140,7 +165,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen>
                           Row(
                             children: [
                               IconButton(
-                                onPressed: () => context.pop(),
+                                onPressed: () => Navigator.of(context).pop(),
                                 icon: const Icon(
                                   Icons.arrow_back_ios_rounded,
                                   color: AppColors.textPrimary,
@@ -324,8 +349,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen>
                           // Verify Button
                           RameinButton(
                             text: 'Verifikasi Email',
-                            onPressed: _isLoading ? null : _handleVerify,
-                            isLoading: _isLoading,
+                            onPressed: authState.isLoading ? null : _handleVerify,
+                            isLoading: authState.isLoading,
                             isFullWidth: true,
                             size: RameinButtonSize.large,
                             icon: Icons.verified_rounded,
@@ -406,55 +431,12 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen>
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // TODO: Implement actual verification logic
-      // final authService = Provider.of<AuthService>(context, listen: false);
-      // await authService.verifyEmail(
-      //   email: widget.email,
-      //   otp: _otpController.text,
-      // );
-      
-      // Navigate to success screen or login
-      if (mounted) {
-        context.go('/login');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Email berhasil diverifikasi! Silakan masuk.'),
-            backgroundColor: AppColors.success,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Verifikasi gagal: ${e.toString()}'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-            ),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    final authNotifier = ref.read(authProvider.notifier);
+    
+    await authNotifier.verifyEmail(
+      email: widget.email,
+      token: _otpController.text,
+    );
   }
 
   Future<void> _handleResend() async {
@@ -463,12 +445,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen>
     });
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // TODO: Implement actual resend logic
-      // final authService = Provider.of<AuthService>(context, listen: false);
-      // await authService.resendVerificationEmail(widget.email);
+      final authNotifier = ref.read(authProvider.notifier);
+      await authNotifier.resendVerificationEmail(widget.email);
       
       // Reset countdown
       setState(() {

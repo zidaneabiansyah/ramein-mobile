@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/providers/auth_provider.dart';
 import '../../../shared/widgets/ramein_button.dart';
 import '../../../shared/widgets/ramein_input.dart';
+import 'verify_email_screen.dart';
 
 /// Register Screen untuk aplikasi Ramein
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen>
+class _RegisterScreenState extends ConsumerState<RegisterScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -30,7 +33,6 @@ class _RegisterScreenState extends State<RegisterScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   
-  bool _isLoading = false;
   bool _agreeToTerms = false;
 
   @override
@@ -79,6 +81,31 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
+    // Listen to auth state changes
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            ),
+          ),
+        );
+      } else if (next.user != null && !next.isEmailVerified) {
+        // Navigate to email verification
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => VerifyEmailScreen(email: next.user!.email),
+          ),
+        );
+      }
+    });
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -407,8 +434,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                           // Register Button
                           RameinButton(
                             text: 'Daftar Sekarang',
-                            onPressed: _isLoading ? null : _handleRegister,
-                            isLoading: _isLoading,
+                            onPressed: authState.isLoading ? null : _handleRegister,
+                            isLoading: authState.isLoading,
                             isFullWidth: true,
                             size: RameinButtonSize.large,
                             icon: Icons.person_add_rounded,
@@ -475,50 +502,15 @@ class _RegisterScreenState extends State<RegisterScreen>
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // TODO: Implement actual registration logic
-      // final authService = Provider.of<AuthService>(context, listen: false);
-      // await authService.register(
-      //   name: _nameController.text.trim(),
-      //   email: _emailController.text.trim(),
-      //   phone: _phoneController.text.trim(),
-      //   address: _addressController.text.trim(),
-      //   education: _educationController.text.trim(),
-      //   password: _passwordController.text,
-      // );
-      
-      // Navigate to email verification
-      if (mounted) {
-        Navigator.of(context).pushNamed('/verify-email', arguments: {
-          'email': _emailController.text.trim(),
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Registrasi gagal: ${e.toString()}'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-            ),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    final authNotifier = ref.read(authProvider.notifier);
+    
+    await authNotifier.register(
+      fullName: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phoneNumber: _phoneController.text.trim(),
+      address: _addressController.text.trim(),
+      education: _educationController.text.trim(),
+      password: _passwordController.text,
+    );
   }
 }

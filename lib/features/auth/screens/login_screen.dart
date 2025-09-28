@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/providers/auth_provider.dart';
 import '../../../shared/widgets/ramein_button.dart';
 import '../../../shared/widgets/ramein_input.dart';
+import 'forgot_password_screen.dart';
 
 /// Login Screen untuk aplikasi Ramein
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class _LoginScreenState extends ConsumerState<LoginScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -24,7 +27,6 @@ class _LoginScreenState extends State<LoginScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   
-  bool _isLoading = false;
   bool _rememberMe = false;
 
   @override
@@ -68,6 +70,27 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
+    // Listen to auth state changes
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            ),
+          ),
+        );
+      } else if (next.isAuthenticated && next.isEmailVerified) {
+        // Navigate to home screen
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
+    });
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -222,7 +245,11 @@ class _LoginScreenState extends State<LoginScreen>
                               TextButton(
                                 onPressed: () {
                                   // Navigate to forgot password
-                                  Navigator.of(context).pushNamed('/forgot-password');
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const ForgotPasswordScreen(),
+                                    ),
+                                  );
                                 },
                                 child: Text(
                                   'Lupa kata sandi?',
@@ -240,8 +267,8 @@ class _LoginScreenState extends State<LoginScreen>
                           // Login Button
                           RameinButton(
                             text: 'Masuk',
-                            onPressed: _isLoading ? null : _handleLogin,
-                            isLoading: _isLoading,
+                            onPressed: authState.isLoading ? null : _handleLogin,
+                            isLoading: authState.isLoading,
                             isFullWidth: true,
                             size: RameinButtonSize.large,
                             icon: Icons.login_rounded,
@@ -279,18 +306,6 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           
                           const SizedBox(height: AppSpacing.xl),
-                          
-                          // Admin Login Button
-                          RameinButton(
-                            text: 'Masuk sebagai Admin',
-                            onPressed: () {
-                              Navigator.of(context).pushNamed('/admin/login');
-                            },
-                            variant: RameinButtonVariant.outline,
-                            isFullWidth: true,
-                            size: RameinButtonSize.large,
-                            icon: Icons.admin_panel_settings_rounded,
-                          ),
                         ],
                       ),
                     ),
@@ -339,45 +354,12 @@ class _LoginScreenState extends State<LoginScreen>
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // TODO: Implement actual login logic
-      // final authService = Provider.of<AuthService>(context, listen: false);
-      // await authService.login(
-      //   _emailController.text.trim(),
-      //   _passwordController.text,
-      //   rememberMe: _rememberMe,
-      // );
-      
-      // Navigate to main app
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Login gagal: ${e.toString()}'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-            ),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    final authNotifier = ref.read(authProvider.notifier);
+    
+    await authNotifier.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      rememberMe: _rememberMe,
+    );
   }
 }
