@@ -5,10 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/app_colors.dart';
 import 'features/splash/splash_screen.dart';
+import 'features/navigation/main_navigation.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/register_screen.dart';
 import 'features/auth/screens/verify_email_screen.dart';
-import 'features/events/screens/home_screen.dart';
 import 'features/events/screens/event_detail_screen.dart';
 import 'features/events/screens/attendance_screen.dart';
 import 'features/events/screens/my_events_screen.dart';
@@ -17,12 +17,12 @@ import 'features/certificates/screens/certificates_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Set system UI overlay style
+  // Set system UI overlay style - Updated for modern blue design
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
       systemNavigationBarColor: AppColors.surface,
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
@@ -62,7 +62,7 @@ class RameinApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
-        '/home': (context) => const HomeScreen(),
+        '/home': (context) => const MainNavigation(),
         '/my-events': (context) => const MyEventsScreen(),
         '/certificates': (context) => const CertificatesScreen(),
       },

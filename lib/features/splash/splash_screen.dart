@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/providers/app_provider.dart';
 import '../../core/providers/auth_provider.dart';
+import '../../core/providers/onboarding_provider.dart';
 import '../auth/screens/login_screen.dart';
-import '../events/screens/home_screen.dart';
+import '../navigation/main_navigation.dart';
+import '../onboarding/onboarding_screen.dart';
 
 /// Splash Screen dengan animasi typing "Ramein" seperti Netflix
 class SplashScreen extends ConsumerStatefulWidget {
@@ -94,17 +97,33 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   void _navigateBasedOnAppState() {
     final appState = ref.read(appProvider);
     final authState = ref.read(authProvider);
+    final onboardingState = ref.read(onboardingProvider);
     
-    if (!appState.isInitialized) {
-      // App belum terinisialisasi, tunggu
+    if (!appState.isInitialized || onboardingState.isLoading) {
+      // App belum terinisialisasi atau onboarding masih loading, tunggu
       return;
     }
     
-    if (authState.isAuthenticated && authState.isEmailVerified) {
-      // User sudah login dan email terverifikasi, ke home
+    // Cek onboarding dulu
+    if (!onboardingState.isCompleted) {
+      // User belum menyelesaikan onboarding, ke onboarding screen
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) => const OnboardingScreen(),
+          transitionDuration: const Duration(milliseconds: 800),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      );
+    } else if (authState.isAuthenticated && authState.isEmailVerified) {
+      // User sudah login dan email terverifikasi, ke main navigation
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const MainNavigation(),
           transitionDuration: const Duration(milliseconds: 800),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
@@ -148,84 +167,130 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       }
     });
 
+    // Listen to onboarding state changes
+    ref.listen<OnboardingState>(onboardingProvider, (previous, next) {
+      if (!next.isLoading && _currentIndex >= _fullText.length) {
+        _navigateBasedOnAppState();
+      }
+    });
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0F0F23),
-              Color(0xFF1A1A2E),
-              Color(0xFF16213E),
-            ],
-          ),
+          gradient: AppColors.splashGradient,
         ),
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Animated Text - Only "Ramein"
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _displayText,
-                        style: AppTypography.displayLarge.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 64,
-                          letterSpacing: 4,
-                          height: 1.1,
+        child: SafeArea(
+          child: Center(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Modern 3D-style logo placeholder
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFFFFFFFF),
+                            Color(0xFFE0E7FF),
+                          ],
                         ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
                       ),
-                      // Blinking cursor
-                      if (_currentIndex <= _fullText.length)
-                        AnimatedOpacity(
-                          opacity: _currentIndex < _fullText.length ? 1.0 : 0.0,
-                          duration: const Duration(milliseconds: 500),
-                          child: Container(
-                            width: 4,
-                            height: 64,
-                            margin: const EdgeInsets.only(left: 6),
+                      child: const Icon(
+                        Icons.event,
+                        size: 60,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    
+                    const SizedBox(height: AppSpacing.xl * 2),
+                    
+                    // Animated Text - Only "Ramein"
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _displayText,
+                          style: AppTypography.displayLarge.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 48,
+                            letterSpacing: 2,
+                            height: 1.1,
+                          ),
+                        ),
+                        // Blinking cursor
+                        if (_currentIndex <= _fullText.length)
+                          AnimatedOpacity(
+                            opacity: _currentIndex < _fullText.length ? 1.0 : 0.0,
+                            duration: const Duration(milliseconds: 500),
+                            child: Container(
+                              width: 3,
+                              height: 48,
+                              margin: const EdgeInsets.only(left: 4),
+                              decoration: BoxDecoration(
+                                color: AppColors.accent,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: AppSpacing.lg),
+                    
+                    // Subtitle with modern styling
+                    Text(
+                      'Event Management Platform',
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        letterSpacing: 1.2,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    
+                    const SizedBox(height: AppSpacing.enormous * 2),
+                    
+                    // Modern loading indicator
+                    Container(
+                      width: 200,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 200 * (_currentIndex / _fullText.length),
+                            height: 4,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF00ED64), // Accent color from frontend
+                              gradient: const LinearGradient(
+                                colors: [AppColors.accent, AppColors.accentLight],
+                              ),
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: AppSpacing.xl),
-                  
-                  // Subtitle
-                  Text(
-                    'Event Management Platform',
-                    style: AppTypography.bodyLarge.copyWith(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      letterSpacing: 1.5,
-                      fontSize: 16,
-                    ),
-                  ),
-                  
-                  const SizedBox(height: AppSpacing.enormous * 2),
-                  
-                  // Loading indicator
-                  SizedBox(
-                    width: 200,
-                    child: LinearProgressIndicator(
-                      backgroundColor: Colors.white.withValues(alpha: 0.1),
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFF00ED64), // Accent color from frontend
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

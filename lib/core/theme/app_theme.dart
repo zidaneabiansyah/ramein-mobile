@@ -68,7 +68,7 @@ class AppTheme {
         labelSmall: AppTypography.labelSmall.copyWith(color: AppColors.textTertiary),
       ),
       
-      // App Bar Theme
+      // App Bar Theme - Updated for modern design
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
@@ -76,7 +76,7 @@ class AppTheme {
         centerTitle: true,
         titleTextStyle: AppTypography.headlineMedium.copyWith(
           color: AppColors.textPrimary,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
@@ -91,20 +91,25 @@ class AppTheme {
           color: AppColors.textPrimary,
           size: AppSpacing.iconLg,
         ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(16),
+          ),
+        ),
       ),
       
-      // Card Theme - Fixed: Changed from CardTheme to CardThemeData
+      // Card Theme - Updated for modern design
       cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: AppSpacing.cardElevation,
         shadowColor: AppColors.shadowLight,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+          borderRadius: BorderRadius.circular(20), // More rounded
         ),
         margin: const EdgeInsets.all(AppSpacing.sm),
       ),
       
-      // Elevated Button Theme
+      // Elevated Button Theme - Updated for modern design
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -112,30 +117,34 @@ class AppTheme {
           elevation: AppSpacing.buttonElevation,
           shadowColor: AppColors.shadowLight,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
+            borderRadius: BorderRadius.circular(16), // More rounded
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.buttonPadding,
             vertical: AppSpacing.md,
           ),
-          textStyle: AppTypography.buttonText,
+          textStyle: AppTypography.buttonText.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
           minimumSize: const Size(0, AppSpacing.buttonHeightMd),
         ),
       ),
       
-      // Outlined Button Theme
+      // Outlined Button Theme - Updated for modern design
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary, width: 1.5),
+          side: const BorderSide(color: AppColors.primary, width: 2),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
+            borderRadius: BorderRadius.circular(16), // More rounded
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.buttonPadding,
             vertical: AppSpacing.md,
           ),
-          textStyle: AppTypography.buttonText,
+          textStyle: AppTypography.buttonText.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
           minimumSize: const Size(0, AppSpacing.buttonHeightMd),
         ),
       ),

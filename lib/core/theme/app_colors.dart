@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 /// Ramein App Color Palette
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
 class AppColors {
-  // Primary Brand Colors - Sesuai frontend
-  static const Color primary = Color(0xFF030213); // Dark navy dari frontend
-  static const Color primaryLight = Color(0xFF1A1A2E); // Lighter navy
-  static const Color primaryDark = Color(0xFF0F0F23); // Darker navy
-  static const Color primaryAccent = Color(0xFF00ED64); // Accent green dari frontend
+  // Primary Brand Colors - Updated to match modern blue design
+  static const Color primary = Color(0xFF1A2BFF); // Vibrant blue from image
+  static const Color primaryLight = Color(0xFF3B4FFF); // Lighter blue
+  static const Color primaryDark = Color(0xFF0F1BCC); // Darker blue
+  static const Color primaryAccent = Color(0xFF00ED64); // Accent green
   
   // Secondary Colors - Modern Gray
   static const Color secondary = Color(0xFF717182); // Muted foreground dari frontend
@@ -51,11 +51,21 @@ class AppColors {
   static const Color accentLight = Color(0xFF34D399); // Emerald-400
   static const Color accentDark = Color(0xFF059669); // Emerald-600
   
-  // Gradient Colors
+  // Gradient Colors - Updated for modern blue design
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [primary, primaryLight],
+  );
+  
+  static const LinearGradient splashGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF1A2BFF), // Deep blue
+      Color(0xFF0F1BCC), // Darker blue
+      Color(0xFF0A0F99), // Even darker blue
+    ],
   );
   
   static const LinearGradient secondaryGradient = LinearGradient(

@@ -12,6 +12,8 @@ import '../../features/events/screens/attendance_screen.dart';
 import '../../features/events/screens/my_events_screen.dart';
 import '../../features/certificates/screens/certificates_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
+import '../../features/debug/debug_screen.dart';
+import '../../features/onboarding/onboarding_screen.dart';
 
 /// App Router Provider
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -109,6 +111,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => MaterialPage(
           key: state.pageKey,
           child: const ProfileScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/debug',
+        name: 'debug',
+        pageBuilder: (context, state) => MaterialPage(
+          key: state.pageKey,
+          child: const DebugScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        pageBuilder: (context, state) => MaterialPage(
+          key: state.pageKey,
+          child: const OnboardingScreen(),
         ),
       ),
 

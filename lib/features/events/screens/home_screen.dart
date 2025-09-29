@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/providers/event_provider.dart';
 import '../../../core/providers/auth_provider.dart';
-import '../../../shared/widgets/ramein_input.dart';
-import '../widgets/event_card.dart';
-import '../widgets/category_chip.dart';
-import 'event_detail_screen.dart';
+import 'events_screen.dart';
+import '../../../shared/widgets/quick_action_button.dart';
+import '../../../core/models/quick_action_model.dart';
+import '../../qr_scanner/qr_scanner_screen.dart';
+import '../../history/history_screen.dart';
+import '../../certificates/screens/certificates_screen.dart';
+import '../../profile/screens/profile_screen.dart';
 
 /// Home Screen untuk aplikasi Ramein
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
@@ -24,10 +26,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   final _searchController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
   
-  String _selectedCategory = 'Semua';
-  String _selectedSort = 'date_asc';
 
 
   @override
@@ -50,13 +49,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
     ));
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.2, 0.8, curve: Curves.easeOut),
-    ));
 
     _animationController.forward();
   }
@@ -69,15 +61,123 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     super.dispose();
   }
 
+  List<QuickActionModel> _getQuickActions() {
+    return [
+      QuickActionModel(
+        id: 'events',
+        title: 'Event',
+        icon: Icons.event,
+        color: const Color(0xFF1A2BFF),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const EventsScreen(),
+            ),
+          );
+        },
+      ),
+      QuickActionModel(
+        id: 'qr_scan',
+        title: 'Scan QR',
+        icon: Icons.qr_code_scanner,
+        color: const Color(0xFF00ED64),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const QRScannerScreen(),
+            ),
+          );
+        },
+      ),
+      QuickActionModel(
+        id: 'history',
+        title: 'Riwayat',
+        icon: Icons.history,
+        color: const Color(0xFFFF6B35),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const HistoryScreen(),
+            ),
+          );
+        },
+      ),
+      QuickActionModel(
+        id: 'certificates',
+        title: 'Sertifikat',
+        icon: Icons.school,
+        color: const Color(0xFF9C27B0),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const CertificatesScreen(),
+            ),
+          );
+        },
+      ),
+      QuickActionModel(
+        id: 'chatbot',
+        title: 'Chatbot',
+        icon: Icons.chat,
+        color: const Color(0xFF2196F3),
+        badge: 'NEW',
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Chatbot feature coming soon!'),
+              backgroundColor: Color(0xFF2196F3),
+            ),
+          );
+        },
+      ),
+      QuickActionModel(
+        id: 'profile',
+        title: 'Profile',
+        icon: Icons.person,
+        color: const Color(0xFF607D8B),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const ProfileScreen(),
+            ),
+          );
+        },
+      ),
+      QuickActionModel(
+        id: 'settings',
+        title: 'Pengaturan',
+        icon: Icons.settings,
+        color: const Color(0xFF795548),
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Settings feature coming soon!'),
+              backgroundColor: Color(0xFF795548),
+            ),
+          );
+        },
+      ),
+      QuickActionModel(
+        id: 'more',
+        title: 'Lainnya',
+        icon: Icons.more_horiz,
+        color: const Color(0xFF9E9E9E),
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('More features coming soon!'),
+              backgroundColor: Color(0xFF9E9E9E),
+            ),
+          );
+        },
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    final eventState = ref.watch(eventProvider);
     final authState = ref.watch(authProvider);
 
-    // Get filtered events
-    final filteredEvents = _selectedCategory == 'Semua' 
-        ? eventState.events 
-        : eventState.events.where((event) => event.category == _selectedCategory).toList();
 
     return Scaffold(
       body: Container(
@@ -87,22 +187,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         child: SafeArea(
           child: RefreshIndicator(
             onRefresh: () async {
-              await ref.read(eventProvider.notifier).loadEvents(refresh: true);
+              // Refresh functionality moved to events page
             },
             color: AppColors.primary,
             child: CustomScrollView(
               slivers: [
-                // App Bar
+                // Enhanced App Bar
                 SliverAppBar(
-                  expandedHeight: 120,
+                  expandedHeight: 140,
                   floating: false,
                   pinned: true,
                   backgroundColor: Colors.transparent,
                   elevation: 0,
                   flexibleSpace: FlexibleSpaceBar(
                     background: Container(
-                      decoration: const BoxDecoration(
-                        gradient: AppColors.primaryGradient,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.primary,
+                            AppColors.primaryDark,
+                            AppColors.primary.withValues(alpha: 0.9),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: FadeTransition(
                         opacity: _fadeAnimation,
@@ -123,14 +238,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                             ? 'Halo, ${authState.user?.fullName ?? 'User'}!' 
                                             : 'Selamat datang!',
                                         style: AppTypography.bodyLarge.copyWith(
-                                          color: Colors.white.withValues(alpha: 0.9),
+                                          color: Colors.white.withValues(alpha: 0.95),
+                                          fontWeight: FontWeight.w500,
+                                          letterSpacing: 0.3,
                                         ),
                                       ),
+                                      const SizedBox(height: 4),
                                       Text(
                                         'Ramein',
                                         style: AppTypography.displayMedium.copyWith(
                                           color: Colors.white,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 1.2,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black.withValues(alpha: 0.3),
+                                              offset: const Offset(0, 2),
+                                              blurRadius: 4,
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
@@ -216,311 +342,127 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ),
                 ),
 
-                // Search Bar
+                // Quick Actions Section
                 SliverToBoxAdapter(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.screenPadding),
-                        child: RameinSearchInput(
-                          controller: _searchController,
-                          hint: 'Cari kegiatan menarik...',
-                          onChanged: (value) {
-                            ref.read(eventProvider.notifier).searchEvents(value);
-                          },
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(AppSpacing.screenPadding, 0, AppSpacing.screenPadding, AppSpacing.screenPadding),
+                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.white,
+                            Colors.grey[50]!,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 20,
+                            offset: const Offset(0, 4),
+                            spreadRadius: 0,
+                          ),
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            blurRadius: 40,
+                            offset: const Offset(0, 8),
+                            spreadRadius: -10,
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          width: 1,
                         ),
                       ),
-                    ),
-                  ),
-                ),
-
-                // Categories
-                SliverToBoxAdapter(
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.screenPadding,
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              crossAxisSpacing: AppSpacing.lg,
+                              mainAxisSpacing: AppSpacing.lg,
+                              childAspectRatio: 0.75,
                             ),
-                            child: Text(
-                              'Kategori',
-                              style: AppTypography.headlineSmall.copyWith(
-                                color: AppColors.textPrimary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          SizedBox(
-                            height: 50,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.screenPadding,
-                              ),
-                              itemCount: ['Semua', ...eventState.categories].length,
-                              itemBuilder: (context, index) {
-                                final categories = ['Semua', ...eventState.categories];
-                                final category = categories[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: AppSpacing.sm),
-                                  child: CategoryChip(
-                                    label: category,
-                                    isSelected: _selectedCategory == category,
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedCategory = category;
-                                      });
-                                      ref.read(eventProvider.notifier).filterByCategory(
-                                        category == 'Semua' ? null : category,
-                                      );
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
+                            itemCount: _getQuickActions().length,
+                            itemBuilder: (context, index) {
+                              final action = _getQuickActions()[index];
+                              return QuickActionButton(action: action);
+                            },
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
+
+
 
                 const SliverToBoxAdapter(
                   child: SizedBox(height: AppSpacing.lg),
                 ),
 
-                // Events Header
+
+                // Simple welcome message
                 SliverToBoxAdapter(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.screenPadding,
+                    child: Container(
+                      margin: const EdgeInsets.all(AppSpacing.screenPadding),
+                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.white,
+                            Colors.grey[50]!,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 15,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Kegiatan Terbaru',
-                                style: AppTypography.headlineSmall.copyWith(
-                                  color: AppColors.textPrimary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pushNamed('/events');
-                                },
-                                child: Text(
-                                  'Lihat Semua',
-                                  style: AppTypography.bodyMedium.copyWith(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
+                          Icon(
+                            Icons.event_available_rounded,
+                            size: 48,
+                            color: AppColors.primary,
                           ),
                           const SizedBox(height: AppSpacing.md),
-                          // Sorting Dropdown
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.sort_rounded,
-                                size: AppSpacing.iconSm,
-                                color: AppColors.textSecondary,
-                              ),
-                              const SizedBox(width: AppSpacing.xs),
-                              Text(
-                                'Urutkan:',
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.sm,
-                                  vertical: AppSpacing.xs,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.surface,
-                                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                                  border: Border.all(
-                                    color: AppColors.borderLight,
-                                  ),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: _selectedSort,
-                                    items: [
-                                      DropdownMenuItem(
-                                        value: 'date_asc',
-                                        child: Text(
-                                          'Tanggal Terdekat',
-                                          style: AppTypography.bodySmall.copyWith(
-                                            color: AppColors.textPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'date_desc',
-                                        child: Text(
-                                          'Tanggal Terjauh',
-                                          style: AppTypography.bodySmall.copyWith(
-                                            color: AppColors.textPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'price_asc',
-                                        child: Text(
-                                          'Harga Terendah',
-                                          style: AppTypography.bodySmall.copyWith(
-                                            color: AppColors.textPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'price_desc',
-                                        child: Text(
-                                          'Harga Tertinggi',
-                                          style: AppTypography.bodySmall.copyWith(
-                                            color: AppColors.textPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'participants_asc',
-                                        child: Text(
-                                          'Peserta Sedikit',
-                                          style: AppTypography.bodySmall.copyWith(
-                                            color: AppColors.textPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'participants_desc',
-                                        child: Text(
-                                          'Peserta Banyak',
-                                          style: AppTypography.bodySmall.copyWith(
-                                            color: AppColors.textPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        setState(() {
-                                          _selectedSort = value;
-                                        });
-                                        ref.read(eventProvider.notifier).sortEvents(value);
-                                      }
-                                    },
-                                    icon: Icon(
-                                      Icons.keyboard_arrow_down_rounded,
-                                      color: AppColors.textSecondary,
-                                      size: AppSpacing.iconSm,
-                                    ),
-                                    style: AppTypography.bodySmall.copyWith(
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          Text(
+                            'Selamat Datang di Ramein',
+                            style: AppTypography.titleLarge.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            'Gunakan aksi cepat di atas untuk mulai menjelajahi berbagai kegiatan menarik',
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
-
-                // Events List
-                eventState.isLoading
-                    ? SliverToBoxAdapter(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppSpacing.enormous),
-                            child: CircularProgressIndicator(
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                      )
-                    : filteredEvents.isEmpty
-                        ? SliverToBoxAdapter(
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(AppSpacing.enormous),
-                                child: Column(
-                                  children: [
-                                    Icon(
-                                      Icons.event_busy_rounded,
-                                      size: 64,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                    const SizedBox(height: AppSpacing.md),
-                                    Text(
-                                      'Belum ada kegiatan',
-                                      style: AppTypography.headlineSmall.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: AppSpacing.sm),
-                                    Text(
-                                      'Coba ubah filter atau cari kata kunci lain',
-                                      style: AppTypography.bodyMedium.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        : SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                final event = filteredEvents[index];
-                                return FadeTransition(
-                                  opacity: _fadeAnimation,
-                                  child: SlideTransition(
-                                    position: _slideAnimation,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: AppSpacing.screenPadding,
-                                        vertical: AppSpacing.sm,
-                                      ),
-                                      child: EventCard(
-                                        event: event,
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) => EventDetailScreen(eventId: event.id),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                              childCount: filteredEvents.length,
-                            ),
-                          ),
 
                 const SliverToBoxAdapter(
                   child: SizedBox(height: AppSpacing.enormous),
@@ -530,27 +472,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           ),
         ),
       ),
-      floatingActionButton: authState.isAuthenticated
-          ? FadeTransition(
-              opacity: _fadeAnimation,
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/my-events');
-                },
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                icon: const Icon(Icons.event_rounded),
-                label: Text(
-                  'Kegiatan Saya',
-                  style: AppTypography.labelLarge.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                elevation: AppSpacing.fabElevation,
-              ),
-            )
-          : null,
     );
   }
 }

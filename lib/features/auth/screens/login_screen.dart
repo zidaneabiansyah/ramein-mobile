@@ -7,6 +7,7 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../shared/widgets/ramein_button.dart';
 import '../../../shared/widgets/ramein_input.dart';
 import 'forgot_password_screen.dart';
+import '../../navigation/main_navigation.dart';
 
 /// Login Screen untuk aplikasi Ramein
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
@@ -86,8 +87,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ),
         );
       } else if (next.isAuthenticated && next.isEmailVerified) {
-        // Navigate to home screen
-        Navigator.of(context).pushReplacementNamed('/home');
+        // Navigate to main navigation
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const MainNavigation(),
+          ),
+        );
       }
     });
 

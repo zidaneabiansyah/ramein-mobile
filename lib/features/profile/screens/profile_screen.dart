@@ -9,8 +9,8 @@ import '../../../core/providers/event_provider.dart';
 import '../../../core/providers/certificate_provider.dart';
 import '../../../shared/widgets/ramein_button.dart';
 import '../../../features/auth/screens/login_screen.dart';
-import '../../../features/events/screens/my_events_screen.dart';
 import '../../../features/certificates/screens/certificates_screen.dart';
+import '../../../features/history/history_screen.dart';
 
 /// Profile Screen untuk aplikasi Ramein
 /// Menampilkan profil user dan statistik
@@ -376,7 +376,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           const SizedBox(height: AppSpacing.md),
           _buildInfoRow('Alamat', user.address),
           const SizedBox(height: AppSpacing.md),
-          _buildInfoRow('Pendidikan Terakhir', user.lastEducation),
+          _buildInfoRow('Pendidikan Terakhir', user.education),
         ],
       ),
     );
@@ -413,13 +413,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     return Column(
       children: [
         _buildActionTile(
-          'Kegiatan Saya',
-          'Lihat semua kegiatan yang sudah didaftar',
-          Icons.event_rounded,
+          'Riwayat Kegiatan',
+          'Lihat riwayat kegiatan yang pernah diikuti',
+          Icons.history_rounded,
           AppColors.primary,
           () => Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const MyEventsScreen(),
+              builder: (context) => const HistoryScreen(),
             ),
           ),
         ),
@@ -434,6 +434,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               builder: (context) => const CertificatesScreen(),
             ),
           ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        _buildActionTile(
+          'Chatbot Assistant',
+          'Dapatkan bantuan dan informasi dari AI assistant',
+          Icons.chat_rounded,
+          AppColors.info,
+          () {
+            // TODO: Implement chatbot functionality
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Chatbot feature coming soon!'),
+                backgroundColor: AppColors.info,
+              ),
+            );
+          },
         ),
       ],
     );
