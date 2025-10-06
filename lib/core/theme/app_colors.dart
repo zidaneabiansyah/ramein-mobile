@@ -29,8 +29,8 @@ class AppColors {
   static const Color textTertiary = Color(0xFF9CA3AF); // Lighter gray
   static const Color textDisabled = Color(0xFFCBD5E1); // Slate-300
   
-  // Status Colors - Sesuai frontend
-  static const Color success = Color(0xFF00ED64); // Accent green dari frontend
+  // Status Colors - Soft and harmonious
+  static const Color success = Color(0xFF10B981); // Emerald-500 - lebih soft
   static const Color successLight = Color(0xFF34D399); // Emerald-400
   static const Color successDark = Color(0xFF059669); // Emerald-600
   
@@ -38,7 +38,7 @@ class AppColors {
   static const Color warningLight = Color(0xFFFBBF24); // Amber-400
   static const Color warningDark = Color(0xFFD97706); // Amber-600
   
-  static const Color error = Color(0xFFD4183D); // Destructive dari frontend
+  static const Color error = Color(0xFFEF4444); // Red-500 - lebih soft
   static const Color errorLight = Color(0xFFF87171); // Red-400
   static const Color errorDark = Color(0xFFDC2626); // Red-600
   
@@ -46,18 +46,76 @@ class AppColors {
   static const Color infoLight = Color(0xFF60A5FA); // Blue-400
   static const Color infoDark = Color(0xFF2563EB); // Blue-600
   
-  // Special Colors - Sesuai frontend
-  static const Color accent = Color(0xFF00ED64); // Accent green dari frontend
+  // Special Colors - Accent color yang lebih soft
+  static const Color accent = Color(0xFF10B981); // Emerald-500 - tidak nabrak
   static const Color accentLight = Color(0xFF34D399); // Emerald-400
   static const Color accentDark = Color(0xFF059669); // Emerald-600
   
-  // Gradient Colors - Updated for modern blue design
+  // Gradient Colors - Updated for modern blue  // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [primary, primaryLight],
+    colors: [primary, primaryDark],
   );
-  
+
+  static const LinearGradient backgroundGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFFF8F9FA),
+      Color(0xFFFFFFFF),
+    ],
+  );
+
+  // Signature Gradients - Unique untuk Ramein
+  static const LinearGradient accentGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [accent, Color(0xFF059669)],
+  );
+
+  static const LinearGradient successGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [success, Color(0xFF059669)],
+  );
+
+  static const LinearGradient warningGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [warning, Color(0xFFFF9800)],
+  );
+
+  static const LinearGradient errorGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [error, Color(0xFFC62828)],
+  );
+
+  // Mesh Gradient untuk background
+  static const LinearGradient meshGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFFF8F9FA),
+      Color(0xFFE3F2FD),
+      Color(0xFFF8F9FA),
+    ],
+    stops: [0.0, 0.5, 1.0],
+  );
+
+  // Premium gradient dengan multiple colors
+  static const LinearGradient premiumGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      primary,
+      Color(0xFF6366F1),
+      primaryDark,
+    ],
+    stops: [0.0, 0.5, 1.0],
+  );
+
   static const LinearGradient splashGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
@@ -72,12 +130,6 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [secondary, secondaryLight],
-  );
-  
-  static const LinearGradient backgroundGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [background, surfaceVariant],
   );
   
   // Shadow Colors

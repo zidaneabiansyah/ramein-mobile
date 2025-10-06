@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../shared/widgets/pattern_background.dart';
 import 'events_screen.dart';
 import '../../../shared/widgets/quick_action_button.dart';
 import '../../../core/models/quick_action_model.dart';
@@ -66,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       QuickActionModel(
         id: 'events',
         title: 'Event',
-        icon: Icons.event,
+        icon: Icons.calendar_month_rounded,
         color: const Color(0xFF1A2BFF),
         onTap: () {
           Navigator.of(context).push(
@@ -79,7 +80,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       QuickActionModel(
         id: 'qr_scan',
         title: 'Scan QR',
-        icon: Icons.qr_code_scanner,
+        icon: Icons.qr_code_2_rounded,
         color: const Color(0xFF00ED64),
         onTap: () {
           Navigator.of(context).push(
@@ -92,7 +93,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       QuickActionModel(
         id: 'history',
         title: 'Riwayat',
-        icon: Icons.history,
+        icon: Icons.schedule_rounded,
         color: const Color(0xFFFF6B35),
         onTap: () {
           Navigator.of(context).push(
@@ -105,7 +106,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       QuickActionModel(
         id: 'certificates',
         title: 'Sertifikat',
-        icon: Icons.school,
+        icon: Icons.workspace_premium_rounded,
         color: const Color(0xFF9C27B0),
         onTap: () {
           Navigator.of(context).push(
@@ -118,7 +119,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       QuickActionModel(
         id: 'chatbot',
         title: 'Chatbot',
-        icon: Icons.chat,
+        icon: Icons.smart_toy_rounded,
         color: const Color(0xFF2196F3),
         badge: 'NEW',
         onTap: () {
@@ -133,7 +134,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       QuickActionModel(
         id: 'profile',
         title: 'Profile',
-        icon: Icons.person,
+        icon: Icons.account_circle_rounded,
         color: const Color(0xFF607D8B),
         onTap: () {
           Navigator.of(context).push(
@@ -146,7 +147,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       QuickActionModel(
         id: 'settings',
         title: 'Pengaturan',
-        icon: Icons.settings,
+        icon: Icons.tune_rounded,
         color: const Color(0xFF795548),
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -160,7 +161,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       QuickActionModel(
         id: 'more',
         title: 'Lainnya',
-        icon: Icons.more_horiz,
+        icon: Icons.apps_rounded,
         color: const Color(0xFF9E9E9E),
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -180,17 +181,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
-        child: SafeArea(
-          child: RefreshIndicator(
-            onRefresh: () async {
-              // Refresh functionality moved to events page
-            },
-            color: AppColors.primary,
-            child: CustomScrollView(
+      body: PatternBackground(
+        pattern: PatternType.dots,
+        opacity: 0.03,
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: AppColors.backgroundGradient,
+          ),
+          child: SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                // Refresh functionality moved to events page
+              },
+              color: AppColors.primary,
+              child: CustomScrollView(
               slivers: [
                 // Enhanced App Bar
                 SliverAppBar(
@@ -346,57 +350,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 SliverToBoxAdapter(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(AppSpacing.screenPadding, 0, AppSpacing.screenPadding, AppSpacing.screenPadding),
-                      padding: const EdgeInsets.all(AppSpacing.xl),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.white,
-                            Colors.grey[50]!,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 20,
-                            offset: const Offset(0, 4),
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            blurRadius: 40,
-                            offset: const Offset(0, 8),
-                            spreadRadius: -10,
-                          ),
-                        ],
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          width: 1,
-                        ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.screenPadding,
+                        AppSpacing.lg,
+                        AppSpacing.screenPadding,
+                        AppSpacing.screenPadding,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              crossAxisSpacing: AppSpacing.lg,
-                              mainAxisSpacing: AppSpacing.lg,
-                              childAspectRatio: 0.75,
-                            ),
-                            itemCount: _getQuickActions().length,
-                            itemBuilder: (context, index) {
-                              final action = _getQuickActions()[index];
-                              return QuickActionButton(action: action);
-                            },
-                          ),
-                        ],
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          crossAxisSpacing: AppSpacing.xl,
+                          mainAxisSpacing: AppSpacing.xl,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemCount: _getQuickActions().length,
+                        itemBuilder: (context, index) {
+                          final action = _getQuickActions()[index];
+                          return QuickActionButton(action: action);
+                        },
                       ),
                     ),
                   ),
@@ -404,59 +378,138 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
 
 
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: AppSpacing.lg),
-                ),
-
-
-                // Simple welcome message
+                // Banner/Promo Section
                 SliverToBoxAdapter(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
                     child: Container(
-                      margin: const EdgeInsets.all(AppSpacing.screenPadding),
-                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.screenPadding,
+                        vertical: AppSpacing.md,
+                      ),
+                      height: 160,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            Colors.white,
-                            Colors.grey[50]!,
+                            AppColors.primary,
+                            AppColors.primaryDark,
                           ],
                         ),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 15,
-                            offset: const Offset(0, 3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
                           ),
                         ],
                       ),
-                      child: Column(
+                      child: Stack(
                         children: [
-                          Icon(
-                            Icons.event_available_rounded,
-                            size: 48,
-                            color: AppColors.primary,
+                          Positioned(
+                            right: -20,
+                            top: -20,
+                            child: Icon(
+                              Icons.celebration_rounded,
+                              size: 120,
+                              color: Colors.white.withValues(alpha: 0.1),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(AppSpacing.lg),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.md,
+                                    vertical: AppSpacing.xs,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accent,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '🎉 PROMO SPESIAL',
+                                    style: AppTypography.labelSmall.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpacing.md),
+                                Text(
+                                  'Daftar Event Gratis!',
+                                  style: AppTypography.headlineSmall.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpacing.xs),
+                                Text(
+                                  'Ikuti berbagai event menarik dan dapatkan sertifikat',
+                                  style: AppTypography.bodySmall.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Tips & Informasi Section
+                SliverToBoxAdapter(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.screenPadding),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.lightbulb_rounded,
+                                color: AppColors.primary,
+                                size: 24,
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Text(
+                                'Tips & Informasi',
+                                style: AppTypography.titleLarge.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: AppSpacing.md),
-                          Text(
-                            'Selamat Datang di Ramein',
-                            style: AppTypography.titleLarge.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                            textAlign: TextAlign.center,
+                          _buildTipCard(
+                            icon: Icons.verified_rounded,
+                            title: 'Verifikasi Email',
+                            description: 'Pastikan email Anda terverifikasi untuk menerima token event',
+                            color: AppColors.success,
                           ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            'Gunakan aksi cepat di atas untuk mulai menjelajahi berbagai kegiatan menarik',
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                            textAlign: TextAlign.center,
+                          const SizedBox(height: AppSpacing.md),
+                          _buildTipCard(
+                            icon: Icons.notifications_active_rounded,
+                            title: 'Notifikasi Event',
+                            description: 'Aktifkan notifikasi agar tidak ketinggalan event favorit',
+                            color: AppColors.warning,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          _buildTipCard(
+                            icon: Icons.workspace_premium_rounded,
+                            title: 'Kumpulkan Sertifikat',
+                            description: 'Hadiri event dan dapatkan sertifikat digital gratis',
+                            color: AppColors.primary,
                           ),
                         ],
                       ),
@@ -471,6 +524,64 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
           ),
         ),
+      ),
+      ),
+    );
+  }
+
+  Widget _buildTipCard({
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: color.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTypography.titleSmall.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  description,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

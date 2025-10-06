@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.ramein.app" "\0"
-            VALUE "FileDescription", "ramein_mobile" "\0"
+            VALUE "FileDescription", "Ramein" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "ramein_mobile" "\0"
+            VALUE "InternalName", "Ramein" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.ramein.app. All rights reserved." "\0"
-            VALUE "OriginalFilename", "ramein_mobile.exe" "\0"
-            VALUE "ProductName", "ramein_mobile" "\0"
+            VALUE "OriginalFilename", "ramein.exe" "\0"
+            VALUE "ProductName", "Ramein" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

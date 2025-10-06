@@ -27,6 +27,7 @@ class MockApiService {
   Future<void> initialize() async {
     await _loadMockEvents();
     await _loadMockUsers();
+    await _loadMockCertificates();
   }
 
 
@@ -219,6 +220,80 @@ class MockApiService {
         isEmailVerified: true,
         createdAt: now.subtract(const Duration(days: 25)),
         updatedAt: now.subtract(const Duration(days: 2)),
+      ),
+    ]);
+  }
+
+  /// Load mock certificates data
+  Future<void> _loadMockCertificates() async {
+    final now = DateTime.now();
+    
+    _certificates.addAll([
+      CertificateModel(
+        id: 'CERT-001',
+        userId: '1',
+        eventId: '1',
+        eventTitle: 'Workshop Flutter Development',
+        certificateUrl: 'https://picsum.photos/800/600?random=cert1',
+        issuedAt: now.subtract(const Duration(days: 15)),
+        verificationCode: 'VER-FLUTTER-001',
+        status: CertificateStatus.issued,
+        notes: 'Sertifikat kehadiran workshop Flutter Development',
+      ),
+      CertificateModel(
+        id: 'CERT-002',
+        userId: '1',
+        eventId: '2',
+        eventTitle: 'Seminar Digital Marketing',
+        certificateUrl: 'https://picsum.photos/800/600?random=cert2',
+        issuedAt: now.subtract(const Duration(days: 10)),
+        verificationCode: 'VER-MARKETING-002',
+        status: CertificateStatus.issued,
+        notes: 'Sertifikat kehadiran seminar digital marketing',
+      ),
+      CertificateModel(
+        id: 'CERT-003',
+        userId: '1',
+        eventId: '3',
+        eventTitle: 'Kelas Memasak Sehat',
+        certificateUrl: 'https://picsum.photos/800/600?random=cert3',
+        issuedAt: now.subtract(const Duration(days: 7)),
+        verificationCode: 'VER-COOKING-003',
+        status: CertificateStatus.issued,
+        notes: 'Sertifikat kehadiran kelas memasak sehat',
+      ),
+      CertificateModel(
+        id: 'CERT-004',
+        userId: '1',
+        eventId: '4',
+        eventTitle: 'Webinar Data Science',
+        certificateUrl: 'https://picsum.photos/800/600?random=cert4',
+        issuedAt: now.subtract(const Duration(days: 3)),
+        verificationCode: 'VER-DATASCIENCE-004',
+        status: CertificateStatus.issued,
+        notes: 'Sertifikat kehadiran webinar data science',
+      ),
+      CertificateModel(
+        id: 'CERT-005',
+        userId: '1',
+        eventId: '1',
+        eventTitle: 'Workshop UI/UX Design Fundamentals',
+        certificateUrl: 'https://picsum.photos/800/600?random=cert5',
+        issuedAt: now.subtract(const Duration(days: 20)),
+        verificationCode: 'VER-UIUX-005',
+        status: CertificateStatus.issued,
+        notes: 'Sertifikat kehadiran workshop UI/UX design',
+      ),
+      CertificateModel(
+        id: 'CERT-006',
+        userId: '1',
+        eventId: '2',
+        eventTitle: 'Bootcamp Web Development',
+        certificateUrl: 'https://picsum.photos/800/600?random=cert6',
+        issuedAt: now.subtract(const Duration(days: 25)),
+        verificationCode: 'VER-WEBDEV-006',
+        status: CertificateStatus.issued,
+        notes: 'Sertifikat kehadiran bootcamp web development',
       ),
     ]);
   }

@@ -9,6 +9,8 @@ import '../../../core/providers/certificate_provider.dart';
 import '../../../core/models/certificate_model.dart';
 import '../../../shared/widgets/ramein_button.dart';
 import '../../../shared/widgets/ramein_input.dart';
+import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/shimmer_loading.dart';
 
 /// Certificates Screen untuk aplikasi Ramein
 /// Menampilkan sertifikat yang sudah didapat user
@@ -245,10 +247,9 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen>
               // Certificates List
               Expanded(
                 child: certificateState.isLoading
-                    ? Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primary,
-                        ),
+                    ? const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
+                        child: ShimmerListLoading(itemCount: 4),
                       )
                     : filteredCertificates.isEmpty
                         ? _buildEmptyState()
@@ -282,52 +283,10 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen>
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
-              ),
-              child: Icon(
-                Icons.school_rounded,
-                size: 60,
-                color: AppColors.primary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              'Belum ada sertifikat',
-              style: AppTypography.headlineSmall.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Sertifikat akan muncul setelah Anda menghadiri kegiatan dan mengisi daftar hadir.',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            RameinButton(
-              text: 'Jelajahi Kegiatan',
-              onPressed: () => Navigator.of(context).pop(),
-              variant: RameinButtonVariant.outline,
-              icon: Icons.explore_rounded,
-            ),
-          ],
-        ),
-      ),
+    return EmptyState(
+      type: EmptyStateType.noCertificates,
+      actionText: 'Jelajahi Event',
+      onAction: () => Navigator.of(context).pop(),
     );
   }
 
@@ -476,7 +435,8 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen>
     String searchQuery,
     String filter,
   ) {
-    var filtered = certificates;
+    // Create mutable copy
+    var filtered = List<CertificateModel>.from(certificates);
 
     // Apply search filter
     if (searchQuery.isNotEmpty) {

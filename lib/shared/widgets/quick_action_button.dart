@@ -31,45 +31,38 @@ class QuickActionButton extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white,
-                    action.color.withValues(alpha: 0.05),
+                    action.color.withValues(alpha: 0.15),
+                    action.color.withValues(alpha: 0.25),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: action.color.withValues(alpha: 0.15),
+                    color: action.color.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                     spreadRadius: 0,
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                     spreadRadius: 0,
                   ),
                 ],
                 border: Border.all(
-                  color: action.color.withValues(alpha: 0.1),
-                  width: 1.5,
+                  color: action.color.withValues(alpha: 0.4),
+                  width: 2,
                 ),
               ),
               child: Stack(
                 children: [
                   // Main Icon with enhanced styling
                   Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: action.color.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        action.icon,
-                        color: action.color,
-                        size: 24,
-                      ),
+                    child: Icon(
+                      action.icon,
+                      color: action.color,
+                      size: 28,
                     ),
                   ),
                   // Enhanced Badge

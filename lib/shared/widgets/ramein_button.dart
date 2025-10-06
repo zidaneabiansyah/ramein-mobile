@@ -5,7 +5,7 @@ import '../../core/theme/app_spacing.dart';
 
 /// Ramein Custom Button Widget
 /// Modern, minimalis, dan unik dengan berbagai variant
-class RameinButton extends StatelessWidget {
+class RameinButton extends StatefulWidget {
   final String text;
   final VoidCallback? onPressed;
   final RameinButtonVariant variant;
@@ -38,18 +38,24 @@ class RameinButton extends StatelessWidget {
   });
 
   @override
+  State<RameinButton> createState() => _RameinButtonState();
+}
+
+class _RameinButtonState extends State<RameinButton> {
+
+  @override
   Widget build(BuildContext context) {
     final buttonStyle = _getButtonStyle();
     final buttonSize = _getButtonSize();
     
-    Widget buttonChild = isLoading
+    Widget buttonChild = widget.isLoading
         ? SizedBox(
             width: buttonSize.iconSize,
             height: buttonSize.iconSize,
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                variant == RameinButtonVariant.primary ? Colors.white : AppColors.primary,
+                widget.variant == RameinButtonVariant.primary ? Colors.white : AppColors.primary,
               ),
             ),
           )
@@ -57,19 +63,19 @@ class RameinButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (icon != null) ...[
+              if (widget.icon != null) ...[
                 Icon(
-                  icon,
+                  widget.icon,
                   size: buttonSize.iconSize,
                   color: buttonStyle.textColor,
                 ),
                 const SizedBox(width: AppSpacing.sm),
               ],
-              if (child != null)
-                child!
+              if (widget.child != null)
+                widget.child!
               else
                 Text(
-                  text,
+                  widget.text,
                   style: AppTypography.buttonText.copyWith(
                     color: buttonStyle.textColor,
                     fontSize: buttonSize.fontSize,
@@ -80,22 +86,22 @@ class RameinButton extends StatelessWidget {
           );
 
     return SizedBox(
-      width: isFullWidth ? double.infinity : null,
+      width: widget.isFullWidth ? double.infinity : null,
       height: buttonSize.height,
       child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: widget.isLoading ? null : widget.onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: buttonStyle.backgroundColor,
           foregroundColor: buttonStyle.textColor,
-          elevation: elevation ?? buttonStyle.elevation,
+          elevation: widget.elevation ?? buttonStyle.elevation,
           shadowColor: AppColors.shadowLight,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
-              borderRadius ?? buttonSize.borderRadius,
+              widget.borderRadius ?? buttonSize.borderRadius,
             ),
             side: buttonStyle.borderSide,
           ),
-          padding: padding ?? buttonSize.padding,
+          padding: widget.padding ?? buttonSize.padding,
         ),
         child: buttonChild,
       ),
@@ -103,56 +109,56 @@ class RameinButton extends StatelessWidget {
   }
 
   _ButtonStyle _getButtonStyle() {
-    switch (variant) {
+    switch (widget.variant) {
       case RameinButtonVariant.primary:
         return _ButtonStyle(
-          backgroundColor: backgroundColor ?? AppColors.primary,
-          textColor: textColor ?? Colors.white,
+          backgroundColor: widget.backgroundColor ?? AppColors.primary,
+          textColor: widget.textColor ?? Colors.white,
           elevation: AppSpacing.buttonElevation,
           borderSide: BorderSide.none,
         );
       case RameinButtonVariant.secondary:
         return _ButtonStyle(
-          backgroundColor: backgroundColor ?? AppColors.secondary,
-          textColor: textColor ?? Colors.white,
+          backgroundColor: widget.backgroundColor ?? AppColors.secondary,
+          textColor: widget.textColor ?? Colors.white,
           elevation: AppSpacing.buttonElevation,
           borderSide: BorderSide.none,
         );
       case RameinButtonVariant.outline:
         return _ButtonStyle(
-          backgroundColor: backgroundColor ?? Colors.transparent,
-          textColor: textColor ?? AppColors.primary,
+          backgroundColor: widget.backgroundColor ?? Colors.transparent,
+          textColor: widget.textColor ?? AppColors.primary,
           elevation: 0,
           borderSide: BorderSide(
-            color: backgroundColor ?? AppColors.primary,
+            color: widget.backgroundColor ?? AppColors.primary,
             width: 1.5,
           ),
         );
       case RameinButtonVariant.ghost:
         return _ButtonStyle(
-          backgroundColor: backgroundColor ?? Colors.transparent,
-          textColor: textColor ?? AppColors.primary,
+          backgroundColor: widget.backgroundColor ?? Colors.transparent,
+          textColor: widget.textColor ?? AppColors.primary,
           elevation: 0,
           borderSide: BorderSide.none,
         );
       case RameinButtonVariant.success:
         return _ButtonStyle(
-          backgroundColor: backgroundColor ?? AppColors.success,
-          textColor: textColor ?? Colors.white,
+          backgroundColor: widget.backgroundColor ?? AppColors.success,
+          textColor: widget.textColor ?? Colors.white,
           elevation: AppSpacing.buttonElevation,
           borderSide: BorderSide.none,
         );
       case RameinButtonVariant.error:
         return _ButtonStyle(
-          backgroundColor: backgroundColor ?? AppColors.error,
-          textColor: textColor ?? Colors.white,
+          backgroundColor: widget.backgroundColor ?? AppColors.error,
+          textColor: widget.textColor ?? Colors.white,
           elevation: AppSpacing.buttonElevation,
           borderSide: BorderSide.none,
         );
       case RameinButtonVariant.warning:
         return _ButtonStyle(
-          backgroundColor: backgroundColor ?? AppColors.warning,
-          textColor: textColor ?? Colors.white,
+          backgroundColor: widget.backgroundColor ?? AppColors.warning,
+          textColor: widget.textColor ?? Colors.white,
           elevation: AppSpacing.buttonElevation,
           borderSide: BorderSide.none,
         );
@@ -160,7 +166,7 @@ class RameinButton extends StatelessWidget {
   }
 
   _ButtonSize _getButtonSize() {
-    switch (size) {
+    switch (widget.size) {
       case RameinButtonSize.small:
         return _ButtonSize(
           height: AppSpacing.buttonHeightSm,

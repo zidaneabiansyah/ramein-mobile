@@ -47,18 +47,40 @@ class _EventCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: AppSpacing.cardElevation,
-      shadowColor: AppColors.shadowLight,
-      shape: RoundedRectangleBorder(
+    return Container(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.15),
+            blurRadius: 30,
+            offset: const Offset(0, 12),
+            spreadRadius: -8,
+          ),
+        ],
       ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: Card(
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          side: BorderSide(
+            width: 1,
+            color: Colors.white.withValues(alpha: 0.2),
+          ),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Event Image
             ClipRRect(
               borderRadius: const BorderRadius.only(
@@ -324,6 +346,7 @@ class _EventCardContent extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
