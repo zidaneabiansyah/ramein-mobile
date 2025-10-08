@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
-import '../../core/theme/app_spacing.dart';
 import '../../core/models/quick_action_model.dart';
 
 /// Quick Action Button seperti Gojek/Grab
@@ -17,114 +16,88 @@ class QuickActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: action.onTap,
-      child: Container(
-        width: 80,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Icon Container with enhanced styling
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    action.color.withValues(alpha: 0.15),
-                    action.color.withValues(alpha: 0.25),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: action.color.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                    spreadRadius: 0,
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                    spreadRadius: 0,
-                  ),
-                ],
-                border: Border.all(
-                  color: action.color.withValues(alpha: 0.4),
-                  width: 2,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  // Main Icon with enhanced styling
-                  Center(
-                    child: Icon(
-                      action.icon,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Image/Icon only - no background
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Main Icon/Image
+              action.iconPath != null
+                  ? Image.asset(
+                      action.iconPath!,
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.contain,
+                    )
+                  : Icon(
+                      action.icon ?? Icons.apps,
                       color: action.color,
-                      size: 28,
+                      size: 56,
                     ),
-                  ),
-                  // Enhanced Badge
-                  if (action.badge != null)
-                    Positioned(
-                      top: 2,
-                      right: 2,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+              // Badge
+              if (action.badge != null)
+                Positioned(
+                  top: -4,
+                  right: -4,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          action.color,
+                          action.color.withValues(alpha: 0.8),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: action.color.withValues(alpha: 0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              action.color,
-                              action.color.withValues(alpha: 0.8),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: action.color.withValues(alpha: 0.3),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          action.badge!,
-                          style: AppTypography.labelSmall.copyWith(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
+                      ],
+                    ),
+                    child: Text(
+                      action.badge!,
+                      style: AppTypography.labelSmall.copyWith(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
                       ),
                     ),
-                ],
-              ),
-            ),
+                  ),
+                ),
+            ],
+          ),
             
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: 6),
             
             // Enhanced Title
-            Text(
-              action.title,
-              style: AppTypography.labelSmall.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
-                letterSpacing: 0.2,
-                height: 1.2,
+            SizedBox(
+              width: 100,
+              child: Text(
+                action.title,
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  letterSpacing: 0,
+                  height: 1.2,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
-      ),
     );
   }
 }

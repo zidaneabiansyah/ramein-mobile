@@ -127,8 +127,19 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // Simulate refresh - in real app, reload from API
+          await Future.delayed(const Duration(seconds: 1));
+          if (mounted) {
+            setState(() {
+              // Trigger rebuild
+            });
+          }
+        },
+        color: AppColors.primary,
+        child: CustomScrollView(
+          slivers: [
           // App Bar
           SliverAppBar(
             expandedHeight: 120,
@@ -317,6 +328,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
             ),
           ),
         ],
+        ),
       ),
     );
   }

@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class QuickActionModel {
   final String id;
   final String title;
-  final IconData icon;
+  final IconData? icon; // Made optional
+  final String? iconPath; // Added for custom image icons
   final Color color;
   final String? badge;
   final VoidCallback onTap;
@@ -12,7 +13,8 @@ class QuickActionModel {
   const QuickActionModel({
     required this.id,
     required this.title,
-    required this.icon,
+    this.icon,
+    this.iconPath,
     required this.color,
     this.badge,
     required this.onTap,

@@ -92,8 +92,13 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(eventProvider.notifier).loadEvents(refresh: true);
+        },
+        color: AppColors.primary,
+        child: CustomScrollView(
+          slivers: [
           // App Bar
           SliverAppBar(
             expandedHeight: 120,
@@ -372,6 +377,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
           // Events List
           _buildEventsListSliver(eventState),
         ],
+        ),
       ),
     );
   }

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/models/event_model.dart';
+import '../../../core/providers/favorite_provider.dart';
+import '../../../shared/widgets/shimmer_loading.dart';
 
 /// Event Card Widget untuk menampilkan informasi event
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
-class EventCard extends StatelessWidget {
+class EventCard extends ConsumerWidget {
   final EventModel event;
   final VoidCallback? onTap;
 
@@ -19,7 +22,7 @@ class EventCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Move formatters to class level to avoid recreation on each build
     return _EventCardContent(
       event: event,
@@ -28,7 +31,7 @@ class EventCard extends StatelessWidget {
   }
 }
 
-class _EventCardContent extends StatelessWidget {
+class _EventCardContent extends ConsumerWidget {
   final EventModel event;
   final VoidCallback? onTap;
   
@@ -46,7 +49,9 @@ class _EventCardContent extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoriteState = ref.watch(favoriteProvider);
+    final isFavorite = favoriteState.favoriteEventIds.contains(event.id);
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
@@ -94,15 +99,9 @@ class _EventCardContent extends StatelessWidget {
                     width: double.infinity,
                     height: 180,
                     fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
+                    placeholder: (context, url) => const ShimmerLoading(
                       width: double.infinity,
                       height: 180,
-                      color: AppColors.surfaceVariant,
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primary,
-                        ),
-                      ),
                     ),
                     errorWidget: (context, url, error) => Container(
                       width: double.infinity,
@@ -143,6 +142,40 @@ class _EventCardContent extends StatelessWidget {
                         style: AppTypography.labelSmall.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  // Favorite Button
+                  Positioned(
+                    bottom: AppSpacing.md,
+                    right: AppSpacing.md,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          ref.read(favoriteProvider.notifier).toggleFavorite(event.id);
+                        },
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
+                        child: Container(
+                          padding: const EdgeInsets.all(AppSpacing.sm),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            isFavorite ? Icons.bookmark : Icons.bookmark_border,
+                            color: isFavorite ? AppColors.primary : AppColors.textSecondary,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),

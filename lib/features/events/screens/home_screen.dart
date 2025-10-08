@@ -4,14 +4,16 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/event_provider.dart';
 import '../../../shared/widgets/pattern_background.dart';
+import '../../../shared/widgets/shimmer_loading.dart';
 import 'events_screen.dart';
+import 'event_detail_screen.dart';
 import '../../../shared/widgets/quick_action_button.dart';
 import '../../../core/models/quick_action_model.dart';
 import '../../qr_scanner/qr_scanner_screen.dart';
 import '../../history/history_screen.dart';
 import '../../certificates/screens/certificates_screen.dart';
-import '../../profile/screens/profile_screen.dart';
 
 /// Home Screen untuk aplikasi Ramein
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
@@ -24,15 +26,15 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with TickerProviderStateMixin {
-  final _searchController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+  late List<QuickActionModel> _quickActions;
 
 
   @override
   void initState() {
     super.initState();
+    _quickActions = _getQuickActions();
     _setupAnimations();
   }
 
@@ -58,121 +60,90 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void dispose() {
     _animationController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
   List<QuickActionModel> _getQuickActions() {
     return [
+      // 1. Event
       QuickActionModel(
         id: 'events',
         title: 'Event',
-        icon: Icons.calendar_month_rounded,
-        color: const Color(0xFF1A2BFF),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const EventsScreen(),
-            ),
-          );
-        },
+        iconPath: 'assets/icons/Event.png',
+        color: AppColors.primary,
+        onTap: () => _handleQuickAction('events'),
       ),
+      // 2. Scan QR
       QuickActionModel(
         id: 'qr_scan',
         title: 'Scan QR',
-        icon: Icons.qr_code_2_rounded,
-        color: const Color(0xFF00ED64),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const QRScannerScreen(),
-            ),
-          );
-        },
+        iconPath: 'assets/icons/Scan QR.png',
+        color: AppColors.success,
+        onTap: () => _handleQuickAction('qr_scan'),
       ),
-      QuickActionModel(
-        id: 'history',
-        title: 'Riwayat',
-        icon: Icons.schedule_rounded,
-        color: const Color(0xFFFF6B35),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const HistoryScreen(),
-            ),
-          );
-        },
-      ),
+      // 3. Sertifikat
       QuickActionModel(
         id: 'certificates',
         title: 'Sertifikat',
-        icon: Icons.workspace_premium_rounded,
-        color: const Color(0xFF9C27B0),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const CertificatesScreen(),
-            ),
-          );
-        },
+        iconPath: 'assets/icons/Sertifikat.png',
+        color: const Color(0xFF9C27B0), // Purple
+        onTap: () => _handleQuickAction('certificates'),
       ),
+      // 4. Riwayat
+      QuickActionModel(
+        id: 'history',
+        title: 'Riwayat',
+        iconPath: 'assets/icons/Riwayat.png',
+        color: AppColors.warning,
+        onTap: () => _handleQuickAction('history'),
+      ),
+      // 5. Chat Bot
       QuickActionModel(
         id: 'chatbot',
-        title: 'Chatbot',
-        icon: Icons.smart_toy_rounded,
-        color: const Color(0xFF2196F3),
+        title: 'Chat Bot',
+        iconPath: 'assets/icons/Chatbot.png',
+        color: const Color(0xFF00BCD4), // Cyan
         badge: 'NEW',
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Chatbot feature coming soon!'),
-              backgroundColor: Color(0xFF2196F3),
-            ),
-          );
-        },
-      ),
-      QuickActionModel(
-        id: 'profile',
-        title: 'Profile',
-        icon: Icons.account_circle_rounded,
-        color: const Color(0xFF607D8B),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const ProfileScreen(),
-            ),
-          );
-        },
-      ),
-      QuickActionModel(
-        id: 'settings',
-        title: 'Pengaturan',
-        icon: Icons.tune_rounded,
-        color: const Color(0xFF795548),
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Settings feature coming soon!'),
-              backgroundColor: Color(0xFF795548),
-            ),
-          );
-        },
-      ),
-      QuickActionModel(
-        id: 'more',
-        title: 'Lainnya',
-        icon: Icons.apps_rounded,
-        color: const Color(0xFF9E9E9E),
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('More features coming soon!'),
-              backgroundColor: Color(0xFF9E9E9E),
-            ),
-          );
-        },
+        onTap: () => _handleQuickAction('chatbot'),
       ),
     ];
+  }
+
+  void _handleQuickAction(String actionId) {
+    switch (actionId) {
+      case 'events':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const EventsScreen()),
+        );
+        break;
+      case 'qr_scan':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const QRScannerScreen()),
+        );
+        break;
+      case 'certificates':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const CertificatesScreen()),
+        );
+        break;
+      case 'history':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const HistoryScreen()),
+        );
+        break;
+      case 'chatbot':
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Chat Bot feature coming soon! 🤖'),
+            backgroundColor: const Color(0xFF00BCD4),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+        break;
+    }
   }
 
   @override
@@ -350,44 +321,106 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 SliverToBoxAdapter(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.screenPadding,
-                        AppSpacing.lg,
-                        AppSpacing.screenPadding,
-                        AppSpacing.screenPadding,
-                      ),
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          crossAxisSpacing: AppSpacing.xl,
-                          mainAxisSpacing: AppSpacing.xl,
-                          childAspectRatio: 0.75,
-                        ),
-                        itemCount: _getQuickActions().length,
-                        itemBuilder: (context, index) {
-                          final action = _getQuickActions()[index];
-                          return QuickActionButton(action: action);
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-
-
-
-                // Banner/Promo Section
-                SliverToBoxAdapter(
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
                     child: Container(
                       margin: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.screenPadding,
                         vertical: AppSpacing.md,
                       ),
-                      height: 160,
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 15,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.dashboard_rounded,
+                                  color: AppColors.primary,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Text(
+                                'Quick Actions',
+                                style: AppTypography.titleMedium.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          // Custom layout: 3 top, 2 bottom (centered)
+                          Column(
+                            children: [
+                              // Top row - 3 buttons
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  QuickActionButton(
+                                    key: ValueKey(_quickActions[0].id),
+                                    action: _quickActions[0],
+                                  ),
+                                  QuickActionButton(
+                                    key: ValueKey(_quickActions[1].id),
+                                    action: _quickActions[1],
+                                  ),
+                                  QuickActionButton(
+                                    key: ValueKey(_quickActions[2].id),
+                                    action: _quickActions[2],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: AppSpacing.sm),
+                              // Bottom row - 2 buttons (centered)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  QuickActionButton(
+                                    key: ValueKey(_quickActions[3].id),
+                                    action: _quickActions[3],
+                                  ),
+                                  const SizedBox(width: 50),
+                                  QuickActionButton(
+                                    key: ValueKey(_quickActions[4].id),
+                                    action: _quickActions[4],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(
+                        AppSpacing.screenPadding,
+                        AppSpacing.sm,
+                        AppSpacing.screenPadding,
+                        AppSpacing.md,
+                      ),
+                      height: 140,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -464,26 +497,183 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ),
                 ),
 
+                // Featured/Upcoming Events Section
+                SliverToBoxAdapter(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.screenPadding,
+                            AppSpacing.md,
+                            AppSpacing.screenPadding,
+                            AppSpacing.sm,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.event_available_rounded,
+                                      color: AppColors.primary,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: AppSpacing.sm),
+                                  Text(
+                                    'Event Mendatang',
+                                    style: AppTypography.titleMedium.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const EventsScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Lihat Semua',
+                                  style: AppTypography.labelMedium.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 190,
+                          child: Consumer(
+                            builder: (context, ref, child) {
+                              final eventState = ref.watch(eventProvider);
+                              
+                              if (eventState.isLoading) {
+                                return ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.screenPadding,
+                                  ),
+                                  itemCount: 3,
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      width: 260,
+                                      margin: const EdgeInsets.only(right: AppSpacing.md),
+                                      child: const ShimmerLoading(
+                                        width: 260,
+                                        height: 190,
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+
+                              final upcomingEvents = eventState.events.take(5).toList();
+
+                              if (upcomingEvents.isEmpty) {
+                                return Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(AppSpacing.lg),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.event_busy_rounded,
+                                          size: 48,
+                                          color: AppColors.textTertiary,
+                                        ),
+                                        const SizedBox(height: AppSpacing.sm),
+                                        Text(
+                                          'Belum ada event',
+                                          style: AppTypography.bodyMedium.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              return ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.screenPadding,
+                                ),
+                                itemCount: upcomingEvents.length,
+                                itemBuilder: (context, index) {
+                                  final event = upcomingEvents[index];
+                                  return _buildFeaturedEventCard(event);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: AppSpacing.md),
+                ),
+
                 // Tips & Informasi Section
                 SliverToBoxAdapter(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.screenPadding),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.screenPadding,
+                      ),
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 15,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.lightbulb_rounded,
-                                color: AppColors.primary,
-                                size: 24,
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.warning.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.lightbulb_rounded,
+                                  color: AppColors.warning,
+                                  size: 20,
+                                ),
                               ),
                               const SizedBox(width: AppSpacing.sm),
                               Text(
                                 'Tips & Informasi',
-                                style: AppTypography.titleLarge.copyWith(
+                                style: AppTypography.titleMedium.copyWith(
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textPrimary,
                                 ),
@@ -494,21 +684,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           _buildTipCard(
                             icon: Icons.verified_rounded,
                             title: 'Verifikasi Email',
-                            description: 'Pastikan email Anda terverifikasi untuk menerima token event',
+                            description: 'Pastikan email terverifikasi',
                             color: AppColors.success,
                           ),
-                          const SizedBox(height: AppSpacing.md),
+                          const SizedBox(height: AppSpacing.sm),
                           _buildTipCard(
                             icon: Icons.notifications_active_rounded,
                             title: 'Notifikasi Event',
-                            description: 'Aktifkan notifikasi agar tidak ketinggalan event favorit',
+                            description: 'Aktifkan notifikasi event',
                             color: AppColors.warning,
                           ),
-                          const SizedBox(height: AppSpacing.md),
+                          const SizedBox(height: AppSpacing.sm),
                           _buildTipCard(
                             icon: Icons.workspace_premium_rounded,
                             title: 'Kumpulkan Sertifikat',
-                            description: 'Hadiri event dan dapatkan sertifikat digital gratis',
+                            description: 'Hadiri event & dapatkan sertifikat',
                             color: AppColors.primary,
                           ),
                         ],
@@ -518,13 +708,156 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 ),
 
                 const SliverToBoxAdapter(
-                  child: SizedBox(height: AppSpacing.enormous),
+                  child: SizedBox(height: AppSpacing.xl),
                 ),
               ],
             ),
           ),
         ),
       ),
+      ),
+    );
+  }
+
+  Widget _buildFeaturedEventCard(dynamic event) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => EventDetailScreen(eventId: event.id),
+          ),
+        );
+      },
+      child: Container(
+        width: 260,
+        margin: const EdgeInsets.only(right: AppSpacing.md),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Event Image with Badge
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: Image.network(
+                    event.flyerUrl ?? '',
+                    width: double.infinity,
+                    height: 110,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: double.infinity,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppColors.primary,
+                              AppColors.primaryDark,
+                            ],
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.event_rounded,
+                          color: Colors.white.withValues(alpha: 0.5),
+                          size: 48,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                // Free Badge
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.success,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.success.withValues(alpha: 0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'GRATIS',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 9,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Event Info
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event.title,
+                    style: AppTypography.titleSmall.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Icon(
+                          Icons.calendar_today_rounded,
+                          size: 12,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          event.eventDate.toString().split(' ')[0],
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -536,27 +869,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withValues(alpha: 0.3),
+          color: color.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
               color: Colors.white,
-              size: 24,
+              size: 18,
             ),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -566,16 +899,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               children: [
                 Text(
                   title,
-                  style: AppTypography.titleSmall.copyWith(
-                    fontWeight: FontWeight.w700,
+                  style: AppTypography.labelLarge.copyWith(
+                    fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: 2),
                 Text(
                   description,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.textSecondary,
+                    fontSize: 11,
                   ),
                 ),
               ],
