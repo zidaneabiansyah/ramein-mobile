@@ -5,6 +5,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/event_provider.dart';
+import '../../../core/providers/article_provider.dart';
 import '../../../shared/widgets/pattern_background.dart';
 import '../../../shared/widgets/shimmer_loading.dart';
 import 'events_screen.dart';
@@ -14,6 +15,9 @@ import '../../../core/models/quick_action_model.dart';
 import '../../qr_scanner/qr_scanner_screen.dart';
 import '../../history/history_screen.dart';
 import '../../certificates/screens/certificates_screen.dart';
+import '../../articles/screens/articles_screen.dart';
+import '../../articles/screens/article_detail_screen.dart';
+import '../../articles/widgets/article_card.dart';
 
 /// Home Screen untuk aplikasi Ramein
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
@@ -633,76 +637,145 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   child: SizedBox(height: AppSpacing.md),
                 ),
 
-                // Tips & Informasi Section
+                // Rilis Media Section
                 SliverToBoxAdapter(
                   child: FadeTransition(
                     opacity: _fadeAnimation,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.screenPadding,
-                      ),
-                      padding: const EdgeInsets.all(AppSpacing.lg),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 15,
-                            offset: const Offset(0, 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.screenPadding,
+                            AppSpacing.md,
+                            AppSpacing.screenPadding,
+                            AppSpacing.sm,
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.warning.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Icon(
-                                  Icons.lightbulb_rounded,
-                                  color: AppColors.warning,
-                                  size: 20,
-                                ),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.article_rounded,
+                                      color: AppColors.primary,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: AppSpacing.sm),
+                                  Text(
+                                    'Rilis Media',
+                                    style: AppTypography.titleMedium.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Text(
-                                'Tips & Informasi',
-                                style: AppTypography.titleMedium.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const ArticlesScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Lihat Semua',
+                                  style: AppTypography.labelMedium.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: AppSpacing.md),
-                          _buildTipCard(
-                            icon: Icons.verified_rounded,
-                            title: 'Verifikasi Email',
-                            description: 'Pastikan email terverifikasi',
-                            color: AppColors.success,
+                        ),
+                        SizedBox(
+                          height: 260,
+                          child: Consumer(
+                            builder: (context, ref, child) {
+                              final articleState = ref.watch(articleProvider);
+                              
+                              if (articleState.isLoading) {
+                                return ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.screenPadding,
+                                  ),
+                                  itemCount: 3,
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      width: 320,
+                                      margin: const EdgeInsets.only(right: AppSpacing.md),
+                                      child: const ShimmerLoading(
+                                        width: 320,
+                                        height: 260,
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+
+                              final articles = articleState.articles.take(5).toList();
+
+                              if (articles.isEmpty) {
+                                return Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(AppSpacing.lg),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.article_outlined,
+                                          size: 48,
+                                          color: AppColors.textTertiary,
+                                        ),
+                                        const SizedBox(height: AppSpacing.sm),
+                                        Text(
+                                          'Belum ada artikel',
+                                          style: AppTypography.bodyMedium.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              return ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.screenPadding,
+                                ),
+                                itemCount: articles.length,
+                                itemBuilder: (context, index) {
+                                  final article = articles[index];
+                                  return ArticleCard(
+                                    article: article,
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => ArticleDetailScreen(
+                                            articleId: article.id,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
                           ),
-                          const SizedBox(height: AppSpacing.sm),
-                          _buildTipCard(
-                            icon: Icons.notifications_active_rounded,
-                            title: 'Notifikasi Event',
-                            description: 'Aktifkan notifikasi event',
-                            color: AppColors.warning,
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          _buildTipCard(
-                            icon: Icons.workspace_premium_rounded,
-                            title: 'Kumpulkan Sertifikat',
-                            description: 'Hadiri event & dapatkan sertifikat',
-                            color: AppColors.primary,
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -858,64 +931,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTipCard({
-    required IconData icon,
-    required String title,
-    required String description,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.sm),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.labelLarge.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  description,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
