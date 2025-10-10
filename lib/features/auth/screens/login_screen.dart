@@ -38,7 +38,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   void _setupAnimations() {
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 300), // Optimized
       vsync: this,
     );
 
@@ -47,15 +47,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      curve: Curves.easeOut,
     ));
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
+      begin: const Offset(0, 0.1), // Reduced movement
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animationController,
-      curve: const Interval(0.2, 0.8, curve: Curves.easeOut),
+      curve: Curves.easeOut,
     ));
 
     _animationController.forward();
@@ -125,13 +125,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             decoration: BoxDecoration(
                               gradient: AppColors.primaryGradient,
                               borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
                             ),
                             child: const Icon(
                               Icons.event_available_rounded,

@@ -5,6 +5,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/providers/article_provider.dart';
 import '../../../shared/widgets/shimmer_loading.dart';
+import '../../../shared/widgets/optimized_image.dart';
 import 'article_detail_screen.dart';
 
 /// Articles Screen (Rilis Media) dengan tabs
@@ -18,24 +19,38 @@ class ArticlesScreen extends ConsumerStatefulWidget {
 class _ArticlesScreenState extends ConsumerState<ArticlesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   void _onTabChanged() {
     if (!_tabController.indexIsChanging) {
-      final categories = ['Informasi', 'Artikel', 'Video'];
+      final categories = ['Informasi', 'Artikel'];
       ref.read(articleProvider.notifier).filterByCategory(categories[_tabController.index]);
+    }
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      // Load more when 200px from bottom
+      final articleState = ref.read(articleProvider);
+      if (!articleState.isLoading && articleState.hasMore) {
+        // TODO: Implement loadMoreArticles when API ready
+        // ref.read(articleProvider.notifier).loadMoreArticles();
+      }
     }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -80,7 +95,6 @@ class _ArticlesScreenState extends ConsumerState<ArticlesScreen>
               tabs: const [
                 Tab(text: 'Informasi'),
                 Tab(text: 'Artikel'),
-                Tab(text: 'Video'),
               ],
             ),
           ),
@@ -99,12 +113,24 @@ class _ArticlesScreenState extends ConsumerState<ArticlesScreen>
                           },
                           color: AppColors.primary,
                           child: ListView.separated(
+                            controller: _scrollController,
                             padding: const EdgeInsets.all(AppSpacing.screenPadding),
-                            itemCount: filteredArticles.length,
+                            itemCount: filteredArticles.length + (articleState.isLoading ? 1 : 0),
                             separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
                             itemBuilder: (context, index) {
+                              // Loading indicator at bottom
+                              if (index == filteredArticles.length) {
+                                return Container(
+                                  padding: const EdgeInsets.all(AppSpacing.lg),
+                                  alignment: Alignment.center,
+                                  child: const CircularProgressIndicator(),
+                                );
+                              }
+                              
                               final article = filteredArticles[index];
-                              return _buildArticleCard(article);
+                              return RepaintBoundary(
+                                child: _buildArticleCard(article),
+                              );
                             },
                           ),
                         ),
@@ -128,52 +154,21 @@ class _ArticlesScreenState extends ConsumerState<ArticlesScreen>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image
-            ClipRRect(
+            OptimizedImage(
+              imageUrl: article.imageUrl,
+              width: 120,
+              height: 120,
+              fit: BoxFit.cover,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 bottomLeft: Radius.circular(16),
               ),
-              child: article.imageUrl != null
-                  ? Image.network(
-                      article.imageUrl!,
-                      width: 120,
-                      height: 120,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                AppColors.primary,
-                                AppColors.primaryDark,
-                              ],
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.article_rounded,
-                            color: Colors.white.withValues(alpha: 0.5),
-                            size: 40,
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
+              errorWidget: Container(
                       width: 120,
                       height: 120,
                       decoration: BoxDecoration(

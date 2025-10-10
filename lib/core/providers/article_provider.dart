@@ -5,7 +5,7 @@ import '../models/article_model.dart';
 /// Article State Model
 class ArticleState {
   final List<ArticleModel> articles;
-  final String? selectedCategory; // 'Informasi', 'Artikel', 'Video'
+  final String? selectedCategory; // 'Informasi', 'Artikel'
   final bool isLoading;
   final String? error;
   final int currentPage;

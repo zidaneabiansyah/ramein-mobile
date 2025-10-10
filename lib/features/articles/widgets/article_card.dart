@@ -3,6 +3,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/models/article_model.dart';
+import '../../../shared/widgets/optimized_image.dart';
 
 /// Article Card Widget untuk home page
 class ArticleCard extends StatelessWidget {
@@ -17,21 +18,17 @@ class ArticleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth = screenWidth * 0.85; // 85% dari lebar layar
+    
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 320,
+        width: cardWidth,
         margin: const EdgeInsets.only(right: AppSpacing.md),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 15,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,19 +36,13 @@ class ArticleCard extends StatelessWidget {
             // Image with category badge
             Stack(
               children: [
-                ClipRRect(
+                OptimizedImage(
+                  imageUrl: article.imageUrl,
+                  width: double.infinity,
+                  height: 160,
+                  fit: BoxFit.cover,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: article.imageUrl != null
-                      ? Image.network(
-                          article.imageUrl!,
-                          width: double.infinity,
-                          height: 180,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildPlaceholderImage();
-                          },
-                        )
-                      : _buildPlaceholderImage(),
+                  errorWidget: _buildPlaceholderImage(),
                 ),
                 // Category badge
                 Positioned(
@@ -65,13 +56,6 @@ class ArticleCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: _getCategoryColor(),
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _getCategoryColor().withValues(alpha: 0.3),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
                     ),
                     child: Text(
                       article.category,
@@ -114,11 +98,14 @@ class ArticleCard extends StatelessWidget {
                         color: AppColors.textSecondary,
                       ),
                       const SizedBox(width: 5),
-                      Text(
-                        article.formattedDate,
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
+                      Expanded(
+                        child: Text(
+                          article.formattedDate,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -135,7 +122,7 @@ class ArticleCard extends StatelessWidget {
   Widget _buildPlaceholderImage() {
     return Container(
       width: double.infinity,
-      height: 180,
+      height: 160,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,

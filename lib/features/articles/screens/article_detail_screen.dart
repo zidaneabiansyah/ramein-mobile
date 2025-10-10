@@ -27,7 +27,7 @@ class _ArticleDetailScreenState extends ConsumerState<ArticleDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _loadArticle();
   }
 
@@ -43,9 +43,6 @@ class _ArticleDetailScreenState extends ConsumerState<ArticleDetailScreen>
           break;
         case 'artikel':
           _tabController.index = 1;
-          break;
-        case 'video':
-          _tabController.index = 2;
           break;
       }
     }
@@ -249,7 +246,6 @@ class _ArticleDetailScreenState extends ConsumerState<ArticleDetailScreen>
                       tabs: const [
                         Tab(text: 'Informasi'),
                         Tab(text: 'Artikel'),
-                        Tab(text: 'Video'),
                       ],
                     ),
                   ),
@@ -267,7 +263,6 @@ class _ArticleDetailScreenState extends ConsumerState<ArticleDetailScreen>
                 children: [
                   _buildInformasiTab(),
                   _buildArtikelTab(),
-                  _buildVideoTab(),
                 ],
               ),
             ),

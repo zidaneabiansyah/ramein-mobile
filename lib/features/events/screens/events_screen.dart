@@ -19,6 +19,7 @@ class EventsScreen extends ConsumerStatefulWidget {
 
 class _EventsScreenState extends ConsumerState<EventsScreen> {
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
   String _selectedCategory = 'Semua';
   String _selectedSort = 'date_asc';
 
@@ -32,13 +33,24 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   @override
   void initState() {
     super.initState();
-    // Simple initialization
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      // Load more when 200px from bottom
+      final eventState = ref.read(eventProvider);
+      if (!eventState.isLoading && eventState.hasMore) {
+        ref.read(eventProvider.notifier).loadMoreEvents();
+      }
+    }
   }
 
   @override
@@ -98,141 +110,214 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
         },
         color: AppColors.primary,
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: [
-          // App Bar
-          SliverAppBar(
-            expandedHeight: 120,
-            floating: false,
-            pinned: true,
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.screenPadding),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Semua Event',
-                                style: AppTypography.headlineMedium.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
+            // App Bar
+            SliverAppBar(
+              expandedHeight: 120,
+              floating: false,
+              pinned: true,
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  decoration: const BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.screenPadding),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Semua Event',
+                                  style: AppTypography.headlineMedium.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                '${eventState.events.length} event tersedia',
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.8),
+                                Text(
+                                  '${eventState.events.length} event tersedia',
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Search Bar
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.screenPadding),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+            // Search Bar
+            SliverToBoxAdapter(
               child: Container(
+                padding: const EdgeInsets.all(AppSpacing.screenPadding),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.grey[50]!, Colors.white],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey[200]!),
+                  color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 8,
-                      offset: const Offset(0, 1),
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Cari event menarik...',
-                    hintStyle: AppTypography.bodyMedium.copyWith(
-                      color: Colors.grey[500],
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.grey[50]!, Colors.white],
                     ),
-                    prefixIcon: Icon(
-                      Icons.search_rounded,
-                      color: AppColors.primary,
-                      size: 24,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[200]!),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 8,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
                   ),
-                  style: AppTypography.bodyMedium,
-                  onChanged: (value) {
-                    try {
-                      ref.read(eventProvider.notifier).searchEvents(value);
-                    } catch (e) {
-                      debugPrint('Search error: $e');
-                    }
-                  },
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Cari event menarik...',
+                      hintStyle: AppTypography.bodyMedium.copyWith(
+                        color: Colors.grey[500],
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        color: AppColors.primary,
+                        size: 24,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                    ),
+                    style: AppTypography.bodyMedium,
+                    onChanged: (value) {
+                      try {
+                        ref.read(eventProvider.notifier).searchEvents(value);
+                      } catch (e) {
+                        debugPrint('Search error: $e');
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // Categories
-          if (eventState.categories.isNotEmpty && eventState.categories.length > 0)
-            SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screenPadding,
-                      AppSpacing.screenPadding,
-                      AppSpacing.screenPadding,
-                      0,
+            // Categories
+            if (eventState.categories.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.screenPadding,
+                        AppSpacing.screenPadding,
+                        AppSpacing.screenPadding,
+                        0,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.category_rounded,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(
+                            'Kategori',
+                            style: AppTypography.titleMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.category_rounded,
-                          color: AppColors.primary,
-                          size: 20,
+                    const SizedBox(height: AppSpacing.md),
+                    SizedBox(
+                      height: 48,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.only(
+                          left: AppSpacing.screenPadding,
+                          right: AppSpacing.screenPadding,
                         ),
+                        clipBehavior: Clip.none,
+                        itemCount: eventState.categories.length,
+                        itemBuilder: (context, index) {
+                          if (index >= eventState.categories.length) {
+                            return const SizedBox.shrink();
+                          }
+                          final category = eventState.categories[index];
+                          final isSelected = _selectedCategory == category;
+
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              right: index < eventState.categories.length - 1 
+                                  ? AppSpacing.sm 
+                                  : 0,
+                            ),
+                            child: CategoryChip(
+                              label: category,
+                              isSelected: isSelected,
+                              onTap: () {
+                                setState(() {
+                                  _selectedCategory = category;
+                                });
+                                try {
+                                  ref
+                                      .read(eventProvider.notifier)
+                                      .filterByCategory(
+                                        category == 'Semua' ? null : category,
+                                      );
+                                } catch (e) {
+                                  debugPrint('Filter error: $e');
+                                }
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.screenPadding),
+                  ],
+                ),
+              ),
+
+            // Sort Options
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.screenPadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.sort_rounded, color: AppColors.primary, size: 20),
                         const SizedBox(width: AppSpacing.sm),
                         Text(
-                          'Kategori',
+                          'Urutkan',
                           style: AppTypography.titleMedium.copyWith(
                             fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary,
@@ -240,143 +325,103 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  SizedBox(
-                    height: 48,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.only(
-                        left: AppSpacing.screenPadding,
-                        right: AppSpacing.screenPadding,
-                      ),
-                      clipBehavior: Clip.none,
-                      itemCount: eventState.categories.length,
-                      itemBuilder: (context, index) {
-                        if (index >= eventState.categories.length) {
-                          return const SizedBox.shrink();
-                        }
-                        final category = eventState.categories[index];
-                        final isSelected = _selectedCategory == category;
-
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            right: index < eventState.categories.length - 1 
-                                ? AppSpacing.sm 
-                                : 0,
+                    const SizedBox(height: AppSpacing.md),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.grey[50]!, Colors.white],
+                        ),
+                        border: Border.all(color: Colors.grey[200]!),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
                           ),
-                          child: CategoryChip(
-                            label: category,
-                            isSelected: isSelected,
-                            onTap: () {
+                        ],
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedSort,
+                          isExpanded: true,
+                          items: _sortOptions.map((option) {
+                            return DropdownMenuItem<String>(
+                              value: option['value'],
+                              child: Text(
+                                option['label'],
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
                               setState(() {
-                                _selectedCategory = category;
+                                _selectedSort = value;
                               });
                               try {
-                                ref
-                                    .read(eventProvider.notifier)
-                                    .filterByCategory(
-                                      category == 'Semua' ? null : category,
-                                    );
+                                ref.read(eventProvider.notifier).sortEvents(value);
                               } catch (e) {
-                                debugPrint('Filter error: $e');
+                                debugPrint('Sort error: $e');
                               }
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.screenPadding),
-                ],
-              ),
-            ),
-
-          // Sort Options
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.screenPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.sort_rounded, color: AppColors.primary, size: 20),
-                      const SizedBox(width: AppSpacing.sm),
-                      Text(
-                        'Urutkan',
-                        style: AppTypography.titleMedium.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Colors.grey[50]!, Colors.white],
-                      ),
-                      border: Border.all(color: Colors.grey[200]!),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.02),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _selectedSort,
-                        isExpanded: true,
-                        items: _sortOptions.map((option) {
-                          return DropdownMenuItem<String>(
-                            value: option['value'],
-                            child: Text(
-                              option['label'],
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _selectedSort = value;
-                            });
-                            try {
-                              ref.read(eventProvider.notifier).sortEvents(value);
-                            } catch (e) {
-                              debugPrint('Sort error: $e');
                             }
-                          }
-                        },
-                        icon: Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.primary,
-                          size: 20,
-                        ),
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: AppColors.textPrimary,
+                          },
+                          icon: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Events List
-          _buildEventsListSliver(eventState),
-        ],
+            // Events List
+            _buildEventsListSliver(eventState),
+
+            // Loading indicator saat load more
+            if (eventState.isLoading && eventState.events.isNotEmpty)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(AppSpacing.lg),
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
+
+            // End of list indicator
+            if (!eventState.hasMore && eventState.events.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Center(
+                    child: Text(
+                      'Tidak ada event lagi',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            // Bottom spacing
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppSpacing.xl),
+            ),
+          ],
         ),
       ),
     );
