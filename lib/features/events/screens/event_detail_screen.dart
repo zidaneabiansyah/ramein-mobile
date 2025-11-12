@@ -9,6 +9,7 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/event_provider.dart';
 import '../../../core/models/registration_model.dart';
 import '../../../shared/widgets/ramein_button.dart';
+import '../../../shared/widgets/animations.dart';
 
 /// Event Detail Screen untuk aplikasi Ramein
 /// Modern, minimalis, dan unik dengan identitas visual yang kuat
@@ -362,80 +363,127 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen>
                         const SizedBox(height: AppSpacing.lg),
 
                         // Date, Time, Location
-                        Container(
-                          padding: const EdgeInsets.all(AppSpacing.lg),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-                            border: Border.all(color: AppColors.borderLight),
-                          ),
-                          child: Column(
-                            children: [
-                              _buildInfoRow(
-                                Icons.calendar_today_rounded,
-                                'Tanggal',
-                                dateFormat.format(event.eventDate),
-                                AppColors.primary,
-                              ),
-                              const Divider(height: AppSpacing.xl),
-                              _buildInfoRow(
-                                Icons.access_time_rounded,
-                                'Waktu',
-                                event.eventTime,
-                                AppColors.secondary,
-                              ),
-                              const Divider(height: AppSpacing.xl),
-                              _buildInfoRow(
-                                Icons.location_on_rounded,
-                                'Lokasi',
-                                event.location,
-                                AppColors.accent,
-                              ),
-                            ],
+                        FadeInAnimation(
+                          delay: const Duration(milliseconds: 100),
+                          child: Container(
+                            padding: const EdgeInsets.all(AppSpacing.lg),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                              border: Border.all(color: AppColors.borderLight),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                _buildInfoRow(
+                                  Icons.calendar_today_rounded,
+                                  'Tanggal',
+                                  dateFormat.format(event.eventDate),
+                                  AppColors.primary,
+                                ),
+                                const Divider(height: AppSpacing.xl),
+                                _buildInfoRow(
+                                  Icons.access_time_rounded,
+                                  'Waktu',
+                                  event.eventTime,
+                                  AppColors.secondary,
+                                ),
+                                const Divider(height: AppSpacing.xl),
+                                _buildInfoRow(
+                                  Icons.location_on_rounded,
+                                  'Lokasi',
+                                  event.location,
+                                  AppColors.accent,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
 
                         const SizedBox(height: AppSpacing.lg),
 
                         // Participants Progress
-                        Container(
-                          padding: const EdgeInsets.all(AppSpacing.lg),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-                            border: Border.all(color: AppColors.borderLight),
+                        FadeInAnimation(
+                          delay: const Duration(milliseconds: 200),
+                          child: Container(
+                            padding: const EdgeInsets.all(AppSpacing.lg),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                              border: Border.all(color: AppColors.borderLight),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Peserta Terdaftar',
+                                      style: AppTypography.titleMedium.copyWith(
+                                        color: AppColors.textPrimary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${event.currentParticipants}/${event.maxParticipants}',
+                                      style: AppTypography.titleMedium.copyWith(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: AppSpacing.md),
+                                LinearProgressIndicator(
+                                  value: event.currentParticipants / event.maxParticipants,
+                                  backgroundColor: AppColors.borderLight,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    _getProgressColor(event.currentParticipants / event.maxParticipants),
+                                  ),
+                                  borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+                                  minHeight: 8,
+                                ),
+                              ],
+                            ),
                           ),
+                        ),
+
+                        const SizedBox(height: AppSpacing.lg),
+
+                        // Description
+                        FadeInAnimation(
+                          delay: const Duration(milliseconds: 300),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Peserta Terdaftar',
-                                    style: AppTypography.titleMedium.copyWith(
-                                      color: AppColors.textPrimary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${event.currentParticipants}/${event.maxParticipants}',
-                                    style: AppTypography.titleMedium.copyWith(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
+                              Text(
+                                'Deskripsi',
+                                style: AppTypography.headlineSmall.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                               const SizedBox(height: AppSpacing.md),
-                              LinearProgressIndicator(
-                                value: event.currentParticipants / event.maxParticipants,
-                                backgroundColor: AppColors.borderLight,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  _getProgressColor(event.currentParticipants / event.maxParticipants),
+                              Text(
+                                event.description,
+                                style: AppTypography.bodyLarge.copyWith(
+                                  color: AppColors.textSecondary,
+                                  height: 1.6,
                                 ),
-                                borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
-                                minHeight: 8,
                               ),
                             ],
                           ),
@@ -443,60 +491,49 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen>
 
                         const SizedBox(height: AppSpacing.lg),
 
-                        // Description
-                        Text(
-                          'Deskripsi',
-                          style: AppTypography.headlineSmall.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        Text(
-                          event.description,
-                          style: AppTypography.bodyLarge.copyWith(
-                            color: AppColors.textSecondary,
-                            height: 1.6,
-                          ),
-                        ),
-
-                        const SizedBox(height: AppSpacing.lg),
-
                         // Requirements
-                        Text(
-                          'Persyaratan',
-                          style: AppTypography.headlineSmall.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        ...event.requirements.map((requirement) => 
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.only(top: 6),
-                                  width: 6,
-                                  height: 6,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.primary,
-                                    shape: BoxShape.circle,
+                        FadeInAnimation(
+                          delay: const Duration(milliseconds: 400),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Persyaratan',
+                                style: AppTypography.headlineSmall.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              ...event.requirements.map((requirement) => 
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        margin: const EdgeInsets.only(top: 6),
+                                        width: 6,
+                                        height: 6,
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.primary,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(width: AppSpacing.md),
+                                      Expanded(
+                                        child: Text(
+                                          requirement,
+                                          style: AppTypography.bodyMedium.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(width: AppSpacing.md),
-                                Expanded(
-                                  child: Text(
-                                    requirement,
-                                    style: AppTypography.bodyMedium.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
 

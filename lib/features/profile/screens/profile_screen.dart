@@ -6,6 +6,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../features/auth/screens/login_screen.dart';
 import '../../../features/certificates/screens/certificates_screen.dart';
+import '../../../shared/widgets/animations.dart';
 import 'edit_profile_screen.dart';
 import 'notifications_settings_screen.dart';
 
@@ -43,161 +44,176 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.lg),
 
               // Profile Card
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Profile Photo
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+              FadeInAnimation(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
-                      child: const Icon(
-                        Icons.person_rounded,
-                        size: 50,
-                        color: Colors.white,
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
                       ),
-                    ),
-
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // Name
-                    Text(
-                      user.fullName,
-                      style: AppTypography.headlineSmall.copyWith(
-                        fontWeight: FontWeight.w700,
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Profile Photo
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          gradient: AppColors.primaryGradient,
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+                        ),
+                        child: const Icon(
+                          Icons.person_rounded,
+                          size: 50,
+                          color: Colors.white,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
 
-                    const SizedBox(height: AppSpacing.xs),
+                      const SizedBox(height: AppSpacing.lg),
 
-                    // Email/Role
-                    Text(
-                      user.email,
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
+                      // Name
+                      Text(
+                        user.fullName,
+                        style: AppTypography.headlineSmall.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+
+                      const SizedBox(height: AppSpacing.xs),
+
+                      // Email/Role
+                      Text(
+                        user.email,
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
               const SizedBox(height: AppSpacing.xl),
 
               // Profile Settings Section
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.sm,
+              FadeInAnimation(
+                delay: const Duration(milliseconds: 100),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
-                      child: Text(
-                        'Profile settings',
-                        style: AppTypography.titleMedium.copyWith(
-                          fontWeight: FontWeight.w700,
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.sm,
+                        ),
+                        child: Text(
+                          'Profile settings',
+                          style: AppTypography.titleMedium.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                    ),
 
-                    const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: AppSpacing.sm),
 
-                    // Profile Details & Password
-                    _buildSettingItem(
-                      context,
-                      icon: Icons.person_outline_rounded,
-                      iconColor: const Color(0xFFFFA726),
-                      title: 'Profile details',
-                      subtitle: 'Click here to edit your profile and password',
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const EditProfileScreen(),
-                          ),
-                        );
-                      },
-                    ),
+                      // Profile Details & Password
+                      _buildSettingItem(
+                        context,
+                        icon: Icons.person_outline_rounded,
+                        iconColor: const Color(0xFFFFA726),
+                        title: 'Profile details',
+                        subtitle: 'Click here to edit your profile and password',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const EditProfileScreen(),
+                            ),
+                          );
+                        },
+                      ),
 
-                    const Divider(height: 1),
+                      const Divider(height: 1),
 
-                    // Certificates
-                    _buildSettingItem(
-                      context,
-                      icon: Icons.workspace_premium_rounded,
-                      iconColor: const Color(0xFF9C27B0),
-                      title: 'Certificates',
-                      subtitle: 'View and manage your certificates',
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const CertificatesScreen(),
-                          ),
-                        );
-                      },
-                    ),
+                      // Certificates
+                      _buildSettingItem(
+                        context,
+                        icon: Icons.workspace_premium_rounded,
+                        iconColor: const Color(0xFF9C27B0),
+                        title: 'Certificates',
+                        subtitle: 'View and manage your certificates',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const CertificatesScreen(),
+                            ),
+                          );
+                        },
+                      ),
 
-                    const Divider(height: 1),
+                      const Divider(height: 1),
 
-                    // Notifications
-                    _buildSettingItem(
-                      context,
-                      icon: Icons.notifications_outlined,
-                      iconColor: const Color(0xFFFF7043),
-                      title: 'Notifications',
-                      subtitle: 'Click here to manage notifications alert',
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const NotificationsSettingsScreen(),
-                          ),
-                        );
-                      },
-                    ),
+                      // Notifications
+                      _buildSettingItem(
+                        context,
+                        icon: Icons.notifications_outlined,
+                        iconColor: const Color(0xFFFF7043),
+                        title: 'Notifications',
+                        subtitle: 'Click here to manage notifications alert',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const NotificationsSettingsScreen(),
+                            ),
+                          );
+                        },
+                      ),
 
-                    const Divider(height: 1),
+                      const Divider(height: 1),
 
-                    // Log out
-                    _buildSettingItem(
-                      context,
-                      icon: Icons.logout_rounded,
-                      iconColor: const Color(0xFFEC407A),
-                      title: 'Log me out',
-                      subtitle: 'Click here to go back to log in page',
-                      onTap: () => _showLogoutDialog(context, ref),
-                    ),
-                  ],
+                      // Log out
+                      _buildSettingItem(
+                        context,
+                        icon: Icons.logout_rounded,
+                        iconColor: const Color(0xFFEC407A),
+                        title: 'Log me out',
+                        subtitle: 'Click here to go back to log in page',
+                        onTap: () => _showLogoutDialog(context, ref),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 

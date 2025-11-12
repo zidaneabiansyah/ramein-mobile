@@ -119,18 +119,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       child: Column(
                         children: [
                           // Logo
-                          Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              gradient: AppColors.primaryGradient,
-                              borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
-                            ),
-                            child: const Icon(
-                              Icons.event_available_rounded,
-                              color: Colors.white,
-                              size: 40,
-                            ),
+                          Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.contain,
+                            width: 90,
+                            height: 90,
                           ),
                           
                           const SizedBox(height: AppSpacing.xl),

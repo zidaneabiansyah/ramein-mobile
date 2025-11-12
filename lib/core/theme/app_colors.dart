@@ -67,6 +67,28 @@ class AppColors {
     ],
   );
 
+  // New: Subtle Card Gradient
+  static const LinearGradient cardGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFFFFFBFF),
+      Color(0xFFF8FEFF),
+    ],
+  );
+
+  // New: Vibrant Primary Extended
+  static const LinearGradient primaryExtendedGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF1A2BFF),
+      Color(0xFF0F1BCC),
+      Color(0xFF0F1BCC),
+    ],
+    stops: [0.0, 0.5, 1.0],
+  );
+
   // Signature Gradients - Unique untuk Ramein
   static const LinearGradient accentGradient = LinearGradient(
     begin: Alignment.topLeft,
@@ -77,19 +99,40 @@ class AppColors {
   static const LinearGradient successGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [success, Color(0xFF059669)],
+    colors: [success, Color(0xFF34D399)],
   );
 
   static const LinearGradient warningGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [warning, Color(0xFFFF9800)],
+    colors: [warning, Color(0xFFFBBF24)],
   );
 
   static const LinearGradient errorGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [error, Color(0xFFC62828)],
+    colors: [error, Color(0xFFF87171)],
+  );
+
+  // New: Cyan to Teal
+  static const LinearGradient cyanTealGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF06B6D4), Color(0xFF14B8A6)],
+  );
+
+  // New: Purple to Pink
+  static const LinearGradient purplePinkGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF9B59B6), Color(0xFFEC4899)],
+  );
+
+  // New: Orange to Red
+  static const LinearGradient orangeRedGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFF9800), Color(0xFFE74C3C)],
   );
 
   // Mesh Gradient untuk background

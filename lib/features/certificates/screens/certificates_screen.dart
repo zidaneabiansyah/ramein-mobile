@@ -11,6 +11,7 @@ import '../../../shared/widgets/ramein_button.dart';
 import '../../../shared/widgets/ramein_input.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/shimmer_loading.dart';
+import '../../../shared/widgets/animations.dart';
 
 /// Certificates Screen untuk aplikasi Ramein
 /// Menampilkan sertifikat yang sudah didapat user
@@ -25,7 +26,6 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
   
   final _searchController = TextEditingController();
   String _selectedFilter = 'Semua';
@@ -50,14 +50,6 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen>
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-    ));
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.2, 0.8, curve: Curves.easeOut),
     ));
 
     _animationController.forward();
@@ -264,12 +256,9 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen>
                               itemBuilder: (context, index) {
                                 final certificate = filteredCertificates[index];
                                 
-                                return FadeTransition(
-                                  opacity: _fadeAnimation,
-                                  child: SlideTransition(
-                                    position: _slideAnimation,
-                                    child: _buildCertificateCard(certificate, index),
-                                  ),
+                                return FadeInAnimation(
+                                  delay: Duration(milliseconds: (index * 50).clamp(0, 300)),
+                                  child: _buildCertificateCard(certificate, index),
                                 );
                               },
                             ),
@@ -296,133 +285,164 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen>
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Card(
-        elevation: AppSpacing.cardElevation,
-        shadowColor: AppColors.shadowLight,
+        elevation: 0,
+        color: Colors.white,
+        shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
         ),
-        child: InkWell(
-          onTap: () => _showCertificateDetail(certificate),
-          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header with certificate icon
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(AppSpacing.sm),
-                      decoration: BoxDecoration(
-                        color: AppColors.success.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: InkWell(
+            onTap: () => _showCertificateDetail(certificate),
+            borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header with certificate icon
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.sm),
+                        decoration: BoxDecoration(
+                          color: AppColors.success.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                        ),
+                        child: Icon(
+                          Icons.verified_rounded,
+                          color: AppColors.success,
+                          size: AppSpacing.iconMd,
+                        ),
                       ),
-                      child: Icon(
-                        Icons.verified_rounded,
-                        color: AppColors.success,
-                        size: AppSpacing.iconMd,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            certificate.eventTitle,
-                            style: AppTypography.titleMedium.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              certificate.eventTitle,
+                              style: AppTypography.titleMedium.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            'Sertifikat Kehadiran',
-                            style: AppTypography.bodySmall.copyWith(
-                              color: AppColors.success,
-                              fontWeight: FontWeight.w500,
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              'Sertifikat Kehadiran',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.success,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: AppColors.textSecondary,
-                      size: AppSpacing.iconSm,
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: AppSpacing.md),
-                
-                // Certificate details
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today_rounded,
-                      size: AppSpacing.iconSm,
-                      color: AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Text(
-                      'Diterbitkan: ${dateFormat.format(certificate.issuedAt)}',
-                      style: AppTypography.bodyMedium.copyWith(
+                      Icon(
+                        Icons.chevron_right_rounded,
                         color: AppColors.textSecondary,
+                        size: AppSpacing.iconSm,
                       ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: AppSpacing.md),
+                  
+                  // Certificate details container
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
-                ),
-                
-                const SizedBox(height: AppSpacing.sm),
-                
-                Row(
-                  children: [
-                    Icon(
-                      Icons.person_rounded,
-                      size: AppSpacing.iconSm,
-                      color: AppColors.textSecondary,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today_rounded,
+                              size: AppSpacing.iconSm,
+                              color: AppColors.primary,
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Text(
+                                'Diterbitkan: ${dateFormat.format(certificate.issuedAt)}',
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.person_rounded,
+                              size: AppSpacing.iconSm,
+                              color: AppColors.accent,
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Text(
+                                'Peserta: ${certificate.userId}',
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Text(
-                      'Peserta: ${certificate.userId}',
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
+                  ),
+                  
+                  const SizedBox(height: AppSpacing.md),
+                  
+                  // Action buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: RameinButton(
+                          text: 'Lihat Detail',
+                          onPressed: () => _showCertificateDetail(certificate),
+                          variant: RameinButtonVariant.outline,
+                          size: RameinButtonSize.small,
+                          icon: Icons.visibility_rounded,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: AppSpacing.md),
-                
-                // Action buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: RameinButton(
-                        text: 'Lihat Detail',
-                        onPressed: () => _showCertificateDetail(certificate),
-                        variant: RameinButtonVariant.outline,
-                        size: RameinButtonSize.small,
-                        icon: Icons.visibility_rounded,
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: RameinButton(
+                          text: 'Download',
+                          onPressed: () => _downloadCertificate(certificate),
+                          variant: RameinButtonVariant.primary,
+                          size: RameinButtonSize.small,
+                          icon: Icons.download_rounded,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: RameinButton(
-                        text: 'Download',
-                        onPressed: () => _downloadCertificate(certificate),
-                        variant: RameinButtonVariant.primary,
-                        size: RameinButtonSize.small,
-                        icon: Icons.download_rounded,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

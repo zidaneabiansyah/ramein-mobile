@@ -99,6 +99,18 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
                       ],
                     ),
                     borderRadius: BorderRadius.circular(_isExpanded ? 35 : 25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
@@ -164,20 +176,46 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected 
-              ? Colors.white 
+              ? Colors.white
               : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: Colors.white.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ] : [],
         ),
-        child: Icon(
-          icon,
-          color: isSelected 
-              ? AppColors.primary 
-              : Colors.white.withValues(alpha: 0.8),
-          size: 26,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected 
+                  ? AppColors.primary 
+                  : Colors.white.withValues(alpha: 0.8),
+              size: 26,
+            ),
+            if (isSelected) ...[
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

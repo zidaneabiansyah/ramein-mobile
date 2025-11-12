@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../shared/widgets/animations.dart';
 
 /// History Screen untuk menampilkan riwayat event yang pernah diikuti
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -320,7 +321,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                   final item = filteredHistory[index];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                    child: _buildHistoryCard(item),
+                    child: FadeInAnimation(
+                      delay: Duration(milliseconds: (index * 50).clamp(0, 300)),
+                      child: _buildHistoryCard(item),
+                    ),
                   );
                 },
                 childCount: filteredHistory.isEmpty ? 1 : filteredHistory.length,
@@ -340,9 +344,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
             offset: const Offset(0, 2),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -363,6 +372,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
                         item['title'],
                         style: AppTypography.titleMedium.copyWith(
                           fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
@@ -397,43 +407,54 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
             
             const SizedBox(height: AppSpacing.md),
             
-            // Details
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: 16,
-                  color: AppColors.textTertiary,
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Text(
-                  '${item['date']} • ${item['time']}',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+            // Details with improved spacing
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Text(
+                          '${item['date']} • ${item['time']}',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: AppSpacing.xs),
-            
-            Row(
-              children: [
-                Icon(
-                  Icons.location_on,
-                  size: 16,
-                  color: AppColors.textTertiary,
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: Text(
-                    item['location'],
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        size: 16,
+                        color: AppColors.accent,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Text(
+                          item['location'],
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             
             const SizedBox(height: AppSpacing.md),

@@ -152,25 +152,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                           const SizedBox(height: AppSpacing.lg),
                           
                           // Logo
-                          Container(
-                            width: 70,
-                            height: 70,
-                            decoration: BoxDecoration(
-                              gradient: AppColors.primaryGradient,
-                              borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.person_add_rounded,
-                              color: Colors.white,
-                              size: 35,
-                            ),
+                          Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.contain,
+                            width: 80,
+                            height: 80,
                           ),
                           
                           const SizedBox(height: AppSpacing.lg),

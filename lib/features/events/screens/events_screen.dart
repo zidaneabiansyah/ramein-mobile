@@ -5,6 +5,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/providers/event_provider.dart';
 import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/animations.dart';
 import '../widgets/event_card.dart';
 import '../widgets/category_chip.dart';
 import 'event_detail_screen.dart';
@@ -471,17 +472,21 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                 return const SizedBox.shrink();
               }
               final event = eventState.events[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                child: EventCard(
-                  event: event,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => EventDetailScreen(eventId: event.id),
-                      ),
-                    );
-                  },
+              return FadeInAnimation(
+                delay: Duration(milliseconds: (index * 50).clamp(0, 300).toInt()),
+                duration: const Duration(milliseconds: 400),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                  child: EventCard(
+                    event: event,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => EventDetailScreen(eventId: event.id),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               );
             } catch (e) {

@@ -9,6 +9,7 @@ import '../../../core/providers/article_provider.dart';
 import '../../../shared/widgets/pattern_background.dart';
 import '../../../shared/widgets/shimmer_loading.dart';
 import '../../../shared/widgets/optimized_image.dart';
+import '../../../shared/widgets/animations.dart';
 import 'events_screen.dart';
 import 'event_detail_screen.dart';
 import '../../../shared/widgets/quick_action_button.dart';
@@ -777,66 +778,77 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   Widget _buildFeaturedEventCard(dynamic event) {
-    return RepaintBoundary(
-      child: GestureDetector(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => EventDetailScreen(eventId: event.id),
+    return ScaleFadeAnimation(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOut,
+      child: RepaintBoundary(
+        child: GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => EventDetailScreen(eventId: event.id),
+              ),
+            );
+          },
+          child: Container(
+            width: 260,
+            margin: const EdgeInsets.only(right: AppSpacing.md),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                  spreadRadius: -2,
+                ),
+              ],
             ),
-          );
-        },
-        child: Container(
-          width: 260,
-          margin: const EdgeInsets.only(right: AppSpacing.md),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Event Image with Badge
-              Stack(
-                children: [
-                  OptimizedImage(
-                    imageUrl: event.flyerUrl,
-                    width: double.infinity,
-                    height: 110,
-                    fit: BoxFit.cover,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    errorWidget: Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Event Image with Badge
+                Stack(
+                  children: [
+                    OptimizedImage(
+                      imageUrl: event.flyerUrl,
                       width: double.infinity,
                       height: 110,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.primary,
-                            AppColors.primaryDark,
-                          ],
+                      fit: BoxFit.cover,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      errorWidget: Container(
+                        width: double.infinity,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppColors.primary,
+                              AppColors.primaryDark,
+                            ],
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.event_rounded,
+                          color: Colors.white.withValues(alpha: 0.5),
+                          size: 48,
                         ),
                       ),
-                      child: Icon(
-                        Icons.event_rounded,
-                        color: Colors.white.withValues(alpha: 0.5),
-                        size: 48,
-                      ),
                     ),
-                  ),
-                  // Free Badge
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.success,
-                        borderRadius: BorderRadius.circular(12),
+                    // Free Badge
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.success,
+                          borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         'GRATIS',
@@ -900,6 +912,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           ),
         ),
       ),
+    ),
     );
   }
 }
