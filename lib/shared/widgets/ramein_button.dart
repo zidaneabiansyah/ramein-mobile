@@ -171,24 +171,16 @@ class _RameinButtonState extends State<RameinButton> with SingleTickerProviderSt
     switch (widget.variant) {
       case RameinButtonVariant.primary:
         return _ButtonConfig(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.primary, AppColors.primaryDark],
-          ),
+          gradient: AppColors.purpleCTAGradient,
           textColor: widget.textColor ?? Colors.white,
-          shadowColor: AppColors.primary.withValues(alpha: 0.3),
+          shadowColor: AppColors.accent.withValues(alpha: 0.3),
           border: null,
         );
       case RameinButtonVariant.secondary:
         return _ButtonConfig(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.secondary, AppColors.secondaryDark],
-          ),
+          gradient: AppColors.primaryGradient,
           textColor: widget.textColor ?? Colors.white,
-          shadowColor: AppColors.secondary.withValues(alpha: 0.3),
+          shadowColor: AppColors.primary.withValues(alpha: 0.3),
           border: null,
         );
       case RameinButtonVariant.outline:

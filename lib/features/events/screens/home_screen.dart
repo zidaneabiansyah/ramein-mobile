@@ -73,7 +73,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         id: 'events',
         title: 'Event',
         iconPath: 'assets/icons/Event.png',
-        color: AppColors.primary,
+        color: AppColors.accent,
         onTap: () => _handleQuickAction('events'),
       ),
       // 2. Scan QR
@@ -89,7 +89,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         id: 'certificates',
         title: 'Sertifikat',
         iconPath: 'assets/icons/Sertifikat.png',
-        color: const Color(0xFF9C27B0), // Purple
+        color: AppColors.accent,
         onTap: () => _handleQuickAction('certificates'),
       ),
       // 4. Riwayat
@@ -105,7 +105,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         id: 'chatbot',
         title: 'Chat Bot',
         iconPath: 'assets/icons/Chatbot.png',
-        color: const Color(0xFF00BCD4), // Cyan
+        color: AppColors.primary,
         badge: 'NEW',
         onTap: () => _handleQuickAction('chatbot'),
       ),
@@ -169,7 +169,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               color: AppColors.primary,
               child: CustomScrollView(
                 slivers: [
-                  // Enhanced App Bar
+                  // Enhanced App Bar with Event-Focused Design
                   SliverAppBar(
                     expandedHeight: 140,
                     floating: false,
@@ -179,14 +179,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     flexibleSpace: FlexibleSpaceBar(
                       background: Container(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            colors: [
-                              AppColors.primary,
-                              AppColors.primaryDark,
-                              AppColors.primary.withValues(alpha: 0.9),
-                            ],
-                          ),
+                          gradient: AppColors.tealPurpleGradient,
                         ),
                         child: FadeTransition(
                           opacity: _fadeAnimation,
@@ -331,12 +324,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primary.withValues(alpha: 0.1),
+                                      color: AppColors.accent.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
                                       Icons.dashboard_rounded,
-                                      color: AppColors.primary,
+                                      color: AppColors.accent,
                                       size: 20,
                                     ),
                                   ),
@@ -408,14 +401,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           ),
                           height: 140,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                AppColors.primary,
-                                AppColors.primaryDark,
-                              ],
-                            ),
+                            gradient: AppColors.tealPurpleGradient,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Stack(
@@ -500,12 +486,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                       Container(
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: AppColors.primary.withValues(alpha: 0.1),
+                                          color: AppColors.accent.withValues(alpha: 0.1),
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Icon(
                                           Icons.event_available_rounded,
-                                          color: AppColors.primary,
+                                          color: AppColors.accent,
                                           size: 20,
                                         ),
                                       ),
@@ -530,7 +516,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                     child: Text(
                                       'Lihat Semua',
                                       style: AppTypography.labelMedium.copyWith(
-                                        color: AppColors.primary,
+                                        color: AppColors.accent,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),

@@ -148,7 +148,7 @@ class ArticleCard extends StatelessWidget {
       case 'informasi':
         return AppColors.info;
       case 'artikel':
-        return AppColors.primary;
+        return AppColors.accent;
       case 'video':
         return AppColors.error;
       default:

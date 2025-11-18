@@ -10,7 +10,7 @@ class ArticleState {
   final String? error;
   final int currentPage;
   final bool hasMore;
-
+ 
   const ArticleState({
     this.articles = const [],
     this.selectedCategory,

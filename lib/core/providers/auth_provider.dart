@@ -8,7 +8,7 @@ class AuthState {
   final bool isLoading;
   final String? error;
   final bool isInitialized;
-
+ 
   const AuthState({
     this.user,
     this.isLoading = false,

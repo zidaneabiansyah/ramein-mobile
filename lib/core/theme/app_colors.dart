@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// Ramein App Color Palette
-/// Modern, minimalis, dan unik dengan identitas visual yang kuat
+/// Ramein App Color Palette - Event-Focused Bold Design
+/// Deep Teal + Bold Purple + Warm Accents
 class AppColors {
-  // Primary Brand Colors - Updated to match modern blue design
-  static const Color primary = Color(0xFF1A2BFF); // Vibrant blue from image
-  static const Color primaryLight = Color(0xFF3B4FFF); // Lighter blue
-  static const Color primaryDark = Color(0xFF0F1BCC); // Darker blue
-  static const Color primaryAccent = Color(0xFF00ED64); // Accent green
+  // Primary Brand Colors - NEW: Deep Teal (Event-focused)
+  static const Color primary = Color(0xFF1B6B7F); // Deep Teal from design reference
+  static const Color primaryLight = Color(0xFF2A8FA8); // Lighter teal
+  static const Color primaryDark = Color(0xFF0F4A56); // Darker teal
+  static const Color primaryAccent = Color(0xFF6C3FBF); // Bold Purple accent
   
   // Secondary Colors - Modern Gray
   static const Color secondary = Color(0xFF717182); // Muted foreground dari frontend
@@ -29,110 +29,150 @@ class AppColors {
   static const Color textTertiary = Color(0xFF9CA3AF); // Lighter gray
   static const Color textDisabled = Color(0xFFCBD5E1); // Slate-300
   
-  // Status Colors - Soft and harmonious
-  static const Color success = Color(0xFF10B981); // Emerald-500 - lebih soft
-  static const Color successLight = Color(0xFF34D399); // Emerald-400
-  static const Color successDark = Color(0xFF059669); // Emerald-600
+  // Status Colors - Vibrant & Bold for events
+  static const Color success = Color(0xFF00D084); // Vibrant green - for "Going" status
+  static const Color successLight = Color(0xFF34E9A4); // Lighter vibrant green
+  static const Color successDark = Color(0xFF00A566); // Darker vibrant green
   
-  static const Color warning = Color(0xFFF59E0B); // Amber-500
-  static const Color warningLight = Color(0xFFFBBF24); // Amber-400
-  static const Color warningDark = Color(0xFFD97706); // Amber-600
+  static const Color warning = Color(0xFFFF9500); // Bold Orange - for limited spots
+  static const Color warningLight = Color(0xFFFFB84D); // Lighter orange
+  static const Color warningDark = Color(0xFFE67E00); // Darker orange
   
-  static const Color error = Color(0xFFEF4444); // Red-500 - lebih soft
-  static const Color errorLight = Color(0xFFF87171); // Red-400
-  static const Color errorDark = Color(0xFFDC2626); // Red-600
+  static const Color error = Color(0xFFFF4757); // Bold Red - for sold out
+  static const Color errorLight = Color(0xFFFF6B7A); // Lighter red
+  static const Color errorDark = Color(0xFFE63C4B); // Darker red
   
-  static const Color info = Color(0xFF3B82F6); // Blue-500
-  static const Color infoLight = Color(0xFF60A5FA); // Blue-400
-  static const Color infoDark = Color(0xFF2563EB); // Blue-600
+  static const Color info = Color(0xFF6C3FBF); // Bold Purple - new secondary CTA
+  static const Color infoLight = Color(0xFF8B5FD4); // Lighter purple
+  static const Color infoDark = Color(0xFF4D2699); // Darker purple
   
-  // Special Colors - Accent color yang lebih soft
-  static const Color accent = Color(0xFF10B981); // Emerald-500 - tidak nabrak
-  static const Color accentLight = Color(0xFF34D399); // Emerald-400
-  static const Color accentDark = Color(0xFF059669); // Emerald-600
+  // Special Colors - NEW: Bold Purple accent for CTAs
+  static const Color accent = Color(0xFF6C3FBF); // Bold Purple - main CTA color
+  static const Color accentLight = Color(0xFF8B5FD4); // Lighter purple
+  static const Color accentDark = Color(0xFF4D2699); // Darker purple
   
-  // Gradient Colors - Updated for modern blue  // Gradients
+  // Gradient Colors - NEW: Event-focused bold gradients
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [primary, primaryDark],
+    colors: [
+      Color(0xFF1B6B7F), // Deep Teal
+      Color(0xFF0F4A56), // Darker Teal
+    ],
   );
 
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0xFFF8F9FA),
+      Color(0xFFFAFAFA),
       Color(0xFFFFFFFF),
     ],
   );
 
-  // New: Subtle Card Gradient
+  // NEW: Purple gradient for CTAs & buttons
+  static const LinearGradient purpleCTAGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF6C3FBF), // Bold Purple
+      Color(0xFF4D2699), // Darker Purple
+    ],
+  );
+
+  // NEW: Teal-Purple gradient for premium sections
+  static const LinearGradient tealPurpleGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF1B6B7F), // Teal
+      Color(0xFF6C3FBF), // Purple
+    ],
+  );
+
+  // NEW: Warm gradient for highlight sections
+  static const LinearGradient warmGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFFFF9500), // Bold Orange
+      Color(0xFFFF6B7A), // Bold Red
+    ],
+  );
+
+  // Card Gradient - subtle
   static const LinearGradient cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFFFFFBFF),
-      Color(0xFFF8FEFF),
+      Color(0xFFFAFAFA),
+      Color(0xFFF5F5F5),
     ],
   );
 
-  // New: Vibrant Primary Extended
-  static const LinearGradient primaryExtendedGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF1A2BFF),
-      Color(0xFF0F1BCC),
-      Color(0xFF0F1BCC),
-    ],
-    stops: [0.0, 0.5, 1.0],
-  );
-
-  // Signature Gradients - Unique untuk Ramein
+  // Signature Gradients - Event badges
   static const LinearGradient accentGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [accent, Color(0xFF059669)],
+    colors: [
+      Color(0xFF6C3FBF), // Purple
+      Color(0xFF8B5FD4), // Lighter Purple
+    ],
   );
 
   static const LinearGradient successGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [success, Color(0xFF34D399)],
+    colors: [
+      Color(0xFF00D084), // Vibrant Green
+      Color(0xFF34E9A4), // Lighter Green
+    ],
   );
 
   static const LinearGradient warningGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [warning, Color(0xFFFBBF24)],
+    colors: [
+      Color(0xFFFF9500), // Bold Orange
+      Color(0xFFFFB84D), // Lighter Orange
+    ],
   );
 
   static const LinearGradient errorGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [error, Color(0xFFF87171)],
+    colors: [
+      Color(0xFFFF4757), // Bold Red
+      Color(0xFFFF6B7A), // Lighter Red
+    ],
   );
 
-  // New: Cyan to Teal
+  // Extended gradients for premium effects
   static const LinearGradient cyanTealGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF06B6D4), Color(0xFF14B8A6)],
+    colors: [
+      Color(0xFF1B6B7F), // Teal (matches primary now)
+      Color(0xFF2A8FA8), // Lighter Teal
+    ],
   );
 
-  // New: Purple to Pink
   static const LinearGradient purplePinkGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF9B59B6), Color(0xFFEC4899)],
+    colors: [
+      Color(0xFF6C3FBF), // Purple
+      Color(0xFFE91E63), // Pink
+    ],
   );
 
-  // New: Orange to Red
   static const LinearGradient orangeRedGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFFFF9800), Color(0xFFE74C3C)],
+    colors: [
+      Color(0xFFFF9500), // Orange
+      Color(0xFFFF4757), // Red
+    ],
   );
 
   // Mesh Gradient untuk background
@@ -140,39 +180,55 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFFF8F9FA),
-      Color(0xFFE3F2FD),
-      Color(0xFFF8F9FA),
+      Color(0xFFFAFAFA),
+      Color(0xFFF0F4F8),
+      Color(0xFFFAFAFA),
     ],
     stops: [0.0, 0.5, 1.0],
   );
 
-  // Premium gradient dengan multiple colors
+  // Premium gradient - now teal-based
   static const LinearGradient premiumGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      primary,
-      Color(0xFF6366F1),
-      primaryDark,
+      Color(0xFF1B6B7F),
+      Color(0xFF6C3FBF),
+      Color(0xFF0F4A56),
     ],
     stops: [0.0, 0.5, 1.0],
   );
 
+  // Splash gradient - teal-purple combination
   static const LinearGradient splashGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0xFF1A2BFF), // Deep blue
-      Color(0xFF0F1BCC), // Darker blue
-      Color(0xFF0A0F99), // Even darker blue
+      Color(0xFF1B6B7F), // Deep Teal
+      Color(0xFF0F4A56), // Darker Teal
+      Color(0xFF082630), // Even darker teal
     ],
   );
-  
+
   static const LinearGradient secondaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [secondary, secondaryLight],
+    colors: [
+      Color(0xFF717182), // Gray
+      Color(0xFF9CA3AF), // Lighter gray
+    ],
+  );
+
+  // NEW: Primary Extended Gradient for headers
+  static const LinearGradient primaryExtendedGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF1B6B7F),
+      Color(0xFF0F4A56),
+      Color(0xFF082630),
+    ],
+    stops: [0.0, 0.5, 1.0],
   );
   
   // Shadow Colors

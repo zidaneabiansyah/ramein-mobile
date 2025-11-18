@@ -90,14 +90,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
                   ),
                   height: _isExpanded ? 70 : 50,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.primary,
-                        AppColors.primaryDark,
-                      ],
-                    ),
+                    gradient: AppColors.tealPurpleGradient,
                     borderRadius: BorderRadius.circular(_isExpanded ? 35 : 25),
                     boxShadow: [
                       BoxShadow(
@@ -199,7 +192,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
             Icon(
               icon,
               color: isSelected 
-                  ? AppColors.primary 
+                  ? AppColors.accent 
                   : Colors.white.withValues(alpha: 0.8),
               size: 26,
             ),
@@ -208,7 +201,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
               Text(
                 label,
                 style: TextStyle(
-                  color: AppColors.primary,
+                  color: AppColors.accent,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.3,

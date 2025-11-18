@@ -4,7 +4,7 @@ import '../models/registration_model.dart';
 import '../models/attendance_model.dart';
 import 'mock_api_service.dart';
 
-/// Event Service untuk aplikasi Ramein
+/// Event Service untuk aplikasi Ramein 
 /// Handle event operations, registration, dan attendance
 class EventService {
   static final EventService _instance = EventService._internal();

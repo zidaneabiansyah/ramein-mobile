@@ -127,11 +127,11 @@ class _EventCardContent extends ConsumerWidget {
                         vertical: AppSpacing.sm,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: AppColors.accent,
                         borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: AppColors.accent.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -173,7 +173,7 @@ class _EventCardContent extends ConsumerWidget {
                           ),
                           child: Icon(
                             isFavorite ? Icons.bookmark : Icons.bookmark_border,
-                            color: isFavorite ? AppColors.primary : AppColors.textSecondary,
+                            color: isFavorite ? AppColors.accent : AppColors.textSecondary,
                             size: 20,
                           ),
                         ),
@@ -281,14 +281,14 @@ class _EventCardContent extends ConsumerWidget {
                     children: [
                       Icon(
                         Icons.calendar_today_rounded,
-                        color: AppColors.primary,
+                        color: AppColors.accent,
                         size: AppSpacing.iconSm,
                       ),
                       const SizedBox(width: AppSpacing.sm),
                         Text(
                           _dateFormat.format(event.eventDate),
                         style: AppTypography.eventDate.copyWith(
-                          color: AppColors.primary,
+                          color: AppColors.accent,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
